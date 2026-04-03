@@ -1,23 +1,25 @@
 <template>
-    <el-container class="layout-container-demo">
-        <el-aside width="200px">
-            <el-scrollbar>
+    <el-container class="layout-shell">
+        <el-aside width="220px" class="layout-aside">
+            <el-scrollbar class="aside-scroll">
                 <side-bar />
             </el-scrollbar>
         </el-aside>
 
-        <el-container>
-            <el-header style="text-align: right; font-size: 12px">
+        <el-container class="layout-main-shell">
+            <el-header class="layout-header">
                 <nav-bar />
             </el-header>
 
-            <el-main>
-                <el-scrollbar>
-                    <router-view v-slot="{ Component }">
-                        <keep-alive>
-                            <component :is="Component" />
-                        </keep-alive>
-                    </router-view>
+            <el-main class="layout-main">
+                <el-scrollbar class="main-scroll">
+                    <div class="main-content">
+                        <router-view v-slot="{ Component }">
+                            <keep-alive>
+                                <component :is="Component" />
+                            </keep-alive>
+                        </router-view>
+                    </div>
                 </el-scrollbar>
             </el-main>
         </el-container>
@@ -30,19 +32,39 @@ import SideBar from '@/layout/admin/sidebar/index.vue'
 </script>
 
 <style scoped>
-.layout-container-demo .el-header {
-    position: relative;
-    background-color: var(--el-color-primary-light-7);
-    color: var(--el-text-color-primary);
-}
-
-.layout-container-demo .el-aside {
-    color: var(--el-text-color-primary);
-    background: var(--el-color-primary-light-8);
+.layout-shell {
     height: 100vh;
+    background: #f5f7fb;
 }
 
-.layout-container-demo .el-main {
+.layout-aside {
+    height: 100vh;
+    border-right: 1px solid #e9edf4;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+}
+
+.layout-main-shell {
+    min-width: 0;
+    background: #f5f7fb;
+}
+
+.layout-header {
+    height: 72px;
+    padding: 14px 18px 0;
+    background: transparent;
+}
+
+.layout-main {
+    padding: 14px 18px 18px;
+    min-height: 0;
+}
+
+.main-scroll {
+    height: 100%;
+}
+
+.main-content {
+    min-height: calc(100vh - 104px);
     padding: 0;
 }
 </style>

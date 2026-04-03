@@ -74,15 +74,16 @@ const handleLogout = () => {
 
 <style scoped>
 .navbar {
-    height: 50px;
-    overflow: hidden;
+    height: 58px;
     position: relative;
     background: #fff;
-    box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+    border: 1px solid #e9edf4;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(20, 40, 80, 0.06);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 18px;
 }
 
 .left-breadcrumb {
@@ -101,8 +102,8 @@ const handleLogout = () => {
 
 .username {
     font-size: 14px;
-    color: #606266;
-    margin-right: 15px;
+    color: #4a5568;
+    margin-right: 12px;
 }
 
 .avatar-container {
@@ -117,13 +118,22 @@ const handleLogout = () => {
 .user-avatar {
     cursor: pointer;
     border-radius: 10px;
-    /* 方形圆角头像更商务 */
 }
 
 .caret-icon {
     margin-left: 5px;
     font-size: 12px;
-    color: #909399;
+    color: #94a3b8;
+}
+
+.avatar-wrapper {
+    padding: 4px 8px;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.avatar-wrapper:hover {
+    background: #f3f6fb;
 }
 </style>
 
