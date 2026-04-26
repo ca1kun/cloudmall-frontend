@@ -3,6 +3,43 @@ export interface LoginUser {
   password: string
 }
 
+export interface PageResult<T> {
+  list: T[]
+  total: number
+}
+
+export interface SuperAdmin {
+  adminId?: number
+  userName: string
+  nickName: string
+  phone?: string
+  email?: string
+  status?: number
+  remark?: string
+  createTime?: string
+  updateTime?: string
+}
+
+export interface SuperAdminForm {
+  adminId?: number
+  userName: string
+  nickName: string
+  phone: string
+  email: string
+  password?: string
+  status: number
+  remark: string
+}
+
+export interface SuperAdminQueryParams {
+  pageNum: number
+  pageSize: number
+  userName?: string
+  nickName?: string
+  phone?: string
+  status?: number | ''
+}
+
 export interface Product {
   productId?: number
   productSn: string

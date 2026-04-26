@@ -2,13 +2,14 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 👇 1. 修改引入的类型，从 LoginData 改为 LoginDTO
 // 请确保路径和你 api 文件夹里的文件名一致，通常是 '@/api/auth' 或 '@/api/auth/index'
-import { loginApi,logoutApi, type LoginDTO } from '@/api/auth/auth' 
+import { loginApi,logoutApi, type LoginDTO } from '@/api/auth/auth'
 import router from '@/router'
+import { normalizeRole } from '@/utils/role'
 
 export const useUserStore = defineStore('user', () => {
   // 从本地缓存初始化数据
   const token = ref(localStorage.getItem('token') || '')
-  const role = ref(localStorage.getItem('role') || '')
+  const role = ref(normalizeRole(localStorage.getItem('role')) || '')
   const username = ref(localStorage.getItem('username') || '')
   const avatar = ref(localStorage.getItem('avatar') || '')
 
@@ -19,22 +20,22 @@ export const useUserStore = defineStore('user', () => {
       // 调用真实接口
       // res 是后端返回的完整对象: { code: 200, msg: "...", data: { token: "...", role: "..." } }
       const res = await loginApi(loginForm)
-      
+
       // 👇 3. 关键点：根据你的 Axios 拦截器逻辑提取数据
       // 如果你的 request.ts 拦截器里写的是 return Promise.resolve(res.data)
       // 那么这里的 res 就是 ApiResult 对象，真实的数据在 res.data 里
-      const data = res.data 
+      const data = res.data
 
       // 赋值到 Pinia
       token.value = data.token
-      role.value = data.role
+      role.value = normalizeRole(data.role) || data.role
       username.value = data.username
        avatar.value = data.avatar || '' // 防止 null
       localStorage.setItem('avatar', data.avatar || '')
 
       // 持久化存储
       localStorage.setItem('token', data.token)
-      localStorage.setItem('role', data.role)
+      localStorage.setItem('role', normalizeRole(data.role) || data.role)
       localStorage.setItem('username', data.username)
 
       return data
@@ -59,21 +60,21 @@ export const useUserStore = defineStore('user', () => {
       username.value = ''
       avatar.value = ''
       localStorage.clear() // 清空所有本地存储
-      
+
       // 3. 跳转回登录页
       router.push('/login')
-      
+
       // 可选：弹个窗
-      // ElMessage.success('已安全退出') 
+      // ElMessage.success('已安全退出')
     }
   }
 
-  return { 
-    token, 
-    role, 
+  return {
+    token,
+    role,
     username,
-    avatar, 
-    login, 
-    logout 
+    avatar,
+    login,
+    logout
   }
 })

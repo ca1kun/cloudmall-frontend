@@ -15,26 +15,26 @@
         <el-tab-pane label="验证码登录" name="sms">
           <el-form ref="smsFormRef" :model="smsForm" :rules="smsRules" class="login-form">
             <el-form-item prop="phone">
-              <el-input 
-                v-model="smsForm.phone" 
-                placeholder="请输入手机号" 
-                prefix-icon="Iphone" 
+              <el-input
+                v-model="smsForm.phone"
+                placeholder="请输入手机号"
+                prefix-icon="Iphone"
                 size="large"
-                @keyup.enter="handleLogin" 
+                @keyup.enter="handleLogin"
               />
             </el-form-item>
             <el-form-item prop="code">
               <div class="code-wrapper">
-                <el-input 
-                  v-model="smsForm.code" 
-                  placeholder="验证码" 
-                  prefix-icon="Message" 
+                <el-input
+                  v-model="smsForm.code"
+                  placeholder="验证码"
+                  prefix-icon="Message"
                   size="large"
-                  @keyup.enter="handleLogin" 
+                  @keyup.enter="handleLogin"
                 />
-                <el-button 
-                  type="primary" 
-                  :disabled="isCounting" 
+                <el-button
+                  type="primary"
+                  :disabled="isCounting"
                   class="code-btn"
                   @click="handleSendCode"
                 >
@@ -49,34 +49,34 @@
         <el-tab-pane label="密码登录" name="account">
           <el-form ref="accountFormRef" :model="accountForm" :rules="accountRules" class="login-form">
             <el-form-item prop="username">
-              <el-input 
-                v-model="accountForm.username" 
-                placeholder="用户名/手机号" 
+              <el-input
+                v-model="accountForm.username"
+                placeholder="用户名/手机号"
                 prefix-icon="User"
                 size="large"
-                @keyup.enter="handleLogin" 
+                @keyup.enter="handleLogin"
               />
             </el-form-item>
             <el-form-item prop="password">
-              <el-input 
-                v-model="accountForm.password" 
-                type="password" 
-                placeholder="请输入密码" 
-                prefix-icon="Lock" 
+              <el-input
+                v-model="accountForm.password"
+                type="password"
+                placeholder="请输入密码"
+                prefix-icon="Lock"
                 show-password
                 size="large"
-                @keyup.enter="handleLogin" 
+                @keyup.enter="handleLogin"
               />
             </el-form-item>
           </el-form>
         </el-tab-pane>
       </el-tabs>
 
-      <el-button 
-        type="primary" 
-        class="login-btn" 
+      <el-button
+        type="primary"
+        class="login-btn"
         size="large"
-        :loading="loading" 
+        :loading="loading"
         @click="handleLogin"
       >
         {{ activeTab === 'sms' ? '登录 / 自动注册' : '登 录' }}
@@ -98,6 +98,7 @@ import { useUserStore } from '@/stores/user'
 import { sendCodeApi } from '@/api/auth/auth'
 import { ElMessage } from 'element-plus'
 import { User, Lock, Iphone, Message, Shop } from '@element-plus/icons-vue'
+import { getRoleHomePath } from '@/utils/role'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -162,11 +163,7 @@ const handleLogin = async () => {
         }
         await userStore.login(loginData)
         ElMessage.success('登录成功')
-        if (userStore.role === 'ADMIN') {
-          router.push('/home')
-        } else {
-          router.push('/mall/home')
-        }
+        router.push(getRoleHomePath(userStore.role))
       } finally {
         loading.value = false
       }

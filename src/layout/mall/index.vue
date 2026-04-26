@@ -5,7 +5,7 @@
       <div class="header-logo" @click="router.push('/mall/home')" style="cursor: pointer;">
         SCAU 商城
       </div>
-      
+
       <div class="header-nav">
         <!-- 1. 新增：领券中心入口 -->
         <el-button link class="nav-item" @click="router.push('/mall/coupon')">
@@ -33,15 +33,15 @@
           <template #dropdown>
             <!-- 2. 下拉框修复：统一宽度，去除 router-link -->
             <el-dropdown-menu class="custom-dropdown">
-              <el-dropdown-item 
-                icon="User" 
-                @click="router.push(userStore.role === 'ADMIN' ? '/profile' : '/mall/profile')"
+              <el-dropdown-item
+                icon="User"
+                @click="router.push(getRoleProfilePath(userStore.role))"
               >
                 个人中心
               </el-dropdown-item>
-              <el-dropdown-item 
-                icon="SwitchButton" 
-                divided 
+              <el-dropdown-item
+                icon="SwitchButton"
+                divided
                 @click="handleLogout"
               >
                 退出登录
@@ -67,6 +67,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // 引入所有需要的图标
 import { UserFilled, CaretBottom, ShoppingCart, Ticket, SwitchButton, User } from '@element-plus/icons-vue'
+import { getRoleProfilePath } from '@/utils/role'
 
 const userStore = useUserStore()
 const cartStore = useCartStore()
@@ -83,9 +84,9 @@ const handleLogout = () => {
   })
   .then(async () => {
     await userStore.logout()
-    cartStore.reset() 
+    cartStore.reset()
     ElMessage.success('退出成功')
-    router.replace('/login') 
+    router.replace('/login')
   })
   .catch(() => {})
 }

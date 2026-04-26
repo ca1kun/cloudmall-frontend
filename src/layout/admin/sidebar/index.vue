@@ -13,22 +13,22 @@
                 <el-sub-menu :index="item.path" v-if="item.children">
                     <template #title>
                         <el-icon>
-                            <component :is="item.meta.icon"></component>
-                        </el-icon>{{ item.meta.title }}
+                            <component :is="item.meta?.icon"></component>
+                        </el-icon>{{ item.meta?.title }}
                     </template>
                     <el-menu-item-group v-for="val in item.children" :key="val.path">
                         <el-menu-item :index="val.path">
                             <el-icon>
-                                <component :is="val.meta.icon"></component>
+                                <component :is="val.meta?.icon"></component>
                             </el-icon>
-                            <span>{{ val.meta.title }}</span></el-menu-item>
+                            <span>{{ val.meta?.title }}</span></el-menu-item>
                     </el-menu-item-group>
                 </el-sub-menu>
                 <el-menu-item :index="item.path" v-else>
                     <el-icon>
-                        <component :is="item.meta.icon"></component>
+                            <component :is="item.meta?.icon"></component>
                     </el-icon>
-                    <span>{{ item.meta.title }}</span>
+                    <span>{{ item.meta?.title }}</span>
                 </el-menu-item>
             </div>
         </el-menu>
@@ -37,11 +37,16 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { adminRouters } from '@/router/adminRouter'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { filterRoutesByRole } from '@/utils/role'
 
 const route = useRoute()
-const routerList = [...adminRouters]
+const userStore = useUserStore()
+const { role } = storeToRefs(userStore)
+const routerList = computed(() => filterRoutesByRole(adminRouters, role.value))
 const activeMenu = computed(() => route.path)
 </script>
 
