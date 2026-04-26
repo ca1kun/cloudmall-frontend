@@ -25,7 +25,7 @@ export default defineConfig({
     proxy: {
       // 🌟 统一代理：所有以 /api 开头的请求，全部发给网关 (8080)
       '/api': {
-        target: 'http://localhost:8080', 
+        target: 'http://http://8.163.24.216',
         changeOrigin: true,
       }
     }

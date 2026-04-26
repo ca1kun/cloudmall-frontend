@@ -11,11 +11,12 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
 import '@/css/product.css'
 // 假设你的上传组件路径如下，请确保路径正确
 import UploadImg from '@/components/Uploading.vue'
+import type { Category, PageResult, Product, ProductQueryParams } from '@/types/types'
 
 // ==========================================
 // 1. 分类相关逻辑 (Cascader)
 // ==========================================
-const categoryTree = ref<any[]>([])
+const categoryTree = ref<Category[]>([])
 
 const cascaderProps = {
   value: 'categoryId',
@@ -26,31 +27,41 @@ const cascaderProps = {
 }
 
 // 扁平列表转树形结构
-const listToTree = (list: any[]) => {
-  const map: any = {}
-  const tree: any[] = []
+const listToTree = (list: Category[]) => {
+  const map: Record<number, Category & { children?: Category[] }> = {}
+  const tree: Array<Category & { children?: Category[] }> = []
 
   // 初始化 Map
   list.forEach(item => {
-    map[item.categoryId] = { ...item, children: [] }
+    if (item.categoryId !== undefined) {
+      map[item.categoryId] = { ...item, children: [] }
+    }
   })
 
   // 组装树
   list.forEach(item => {
+    if (item.categoryId === undefined) {
+      return
+    }
     const node = map[item.categoryId]
+    if (!node) {
+      return
+    }
     if (item.parentId === 0) {
       tree.push(node)
     } else {
-      if (map[item.parentId]) {
-        map[item.parentId].children.push(node)
+      const parent = map[item.parentId]
+      if (parent) {
+        parent.children ??= []
+        parent.children.push(node)
       }
     }
   })
 
   // 递归清理空的 children
-  const clean = (nodes: any[]) => {
+  const clean = (nodes: Array<Category & { children?: Category[] }>) => {
     nodes.forEach(node => {
-      if (node.children.length === 0) {
+        if (!node.children || node.children.length === 0) {
         delete node.children
       } else {
         clean(node.children)
@@ -80,25 +91,13 @@ const getCategoryList = async () => {
 // ==========================================
 // 2. 产品列表与查询
 // ==========================================
-interface Product {
-  productId?: number;
-  productName: string;
-  productSn: string;
-  productDescription?: string;
-  price: number;
-  stock: number;
-  imageUrl?: string;
-  detailUrl?: string;
-  category?: { categoryName: string }; // 关联对象
-}
-
 const productList = ref<Product[]>([])
 const loading = ref(false)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(5)
 
-const queryParams = ref({
+const queryParams = ref<ProductQueryParams>({
   pageNum: 1,
   pageSize: 5,
   productName: '',
@@ -129,7 +128,7 @@ async function getPageList() {
     // 根据后端 PageHelper 或 MP 分页结构调整
     // 假设结构是: { list: [], total: 100 }
     const data = response.data || response
-    productList.value = data.list || []
+    productList.value = (data.list || []) as Product[]
     total.value = data.total || 0
   } catch (error) {
     ElMessage.error('数据加载失败')
@@ -157,8 +156,20 @@ const dialogFormVisible = ref(false)
 const formTitle = ref('')
 const productFormRef = ref()
 
+interface ProductForm {
+  productId?: number
+  productName: string
+  productSn: string
+  productDescription: string
+  price: string
+  stock: number
+  productCategoryId: string
+  imageUrl: string
+  detailUrl: string
+}
+
 // 表单对象
-const addProduct = ref({
+const addProduct = ref<ProductForm>({
   productId: undefined as number | undefined,
   productName: '',
   productSn: '',
@@ -247,11 +258,22 @@ const save = async () => {
   await productFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
       try {
+        const payload: Product = {
+          productId: addProduct.value.productId,
+          productName: addProduct.value.productName,
+          productSn: addProduct.value.productSn,
+          productDescription: addProduct.value.productDescription,
+          price: Number(addProduct.value.price),
+          stock: addProduct.value.stock,
+          productCategoryId: Number(addProduct.value.productCategoryId),
+          imageUrl: addProduct.value.imageUrl,
+          detailUrl: addProduct.value.detailUrl,
+        }
         if (addProduct.value.productId) {
-          await updateProductApi(addProduct.value)
+          await updateProductApi(payload)
           ElMessage.success('编辑成功')
         } else {
-          await addProductApi(addProduct.value)
+          await addProductApi(payload)
           ElMessage.success('添加成功')
         }
         dialogFormVisible.value = false
@@ -275,7 +297,8 @@ const handleView = async (id: number) => {
     if (res.code === 200) {
       productDetail.value = {
         ...res.data,
-        price: Number(res.data.price)
+        price: Number(res.data.price),
+        stock: res.data.stock ?? 0,
       }
       drawerVisible.value = true
     }

@@ -11,7 +11,7 @@
 
           <el-row :gutter="20" style="margin-top: 20px;">
             <el-col :span="6" :xs="24" :sm="12" :md="8" :lg="6" v-for="item in list" :key="item.id">
-              <div class="coupon-card" :class="{ 'disabled': isReceived(item.id) || item.count <= 0 }">
+              <div class="coupon-card" :class="{ 'disabled': isReceived(getCouponId(item)) || item.count <= 0 }">
                 <div class="left-part">
                   <div class="amount">¥<span>{{ item.amount }}</span></div>
                   <div class="limit">{{ item.minPoint > 0 ? `满${item.minPoint}可用` : '无门槛' }}</div>
@@ -23,8 +23,8 @@
                     <el-progress :percentage="calcPercentage(item)" :show-text="false" status="exception" />
                     <span class="stock-text">剩 {{ item.count }} 张</span>
                   </div>
-                  <el-button :type="getBtnType(item)" size="small" :loading="loading[item.id]"
-                    :disabled="isReceived(item.id) || item.count <= 0" @click="handleReceive(item)" class="action-btn">
+                  <el-button :type="getBtnType(item)" size="small" :loading="loading[getCouponId(item)]"
+                    :disabled="isReceived(getCouponId(item)) || item.count <= 0" @click="handleReceive(item)" class="action-btn">
                     {{ getBtnText(item) }}
                   </el-button>
                 </div>
@@ -46,7 +46,7 @@
                 <div class="right-part">
                   <div class="name">{{ item.name }}</div>
                   <div class="time">{{ formatTime(item.endTime) }} 到期</div>
-                  
+
                   <div class="status-tag">
                     <el-tag v-if="item.useStatus === 0" type="success" size="small">未使用</el-tag>
                     <el-tag v-else type="info" size="small">已使用</el-tag>
@@ -73,16 +73,19 @@ import { ref, onMounted } from 'vue'
 import { getCouponListApi, receiveCouponApi, getMyCouponIdsApi } from '@/api/mall/coupon'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import type { Coupon, UserCouponRecord } from '@/types/types'
 
 const userStore = useUserStore()
 const activeTab = ref('center')
-const list = ref<any[]>([]) // 公共列表
-const myList = ref<any[]>([]) // 我的列表 (详情)
+const list = ref<Coupon[]>([]) // 公共列表
+const myList = ref<UserCouponRecord[]>([]) // 我的列表 (详情)
 const myCouponSet = ref(new Set<number>()) // 我的领过ID集合
-const loading = ref<any>({})
+const loading = ref<Record<number, boolean>>({})
+
+const getCouponId = (item: Coupon) => item.id ?? 0
 
 // 计算抢光进度条 (假数据演示，你可以用 totalCount - count)
-const calcPercentage = (item: any) => {
+const calcPercentage = (item: Coupon) => {
   // 假设总数是 100，简单展示个效果
   const total = item.count + 10
   return Math.floor(((total - item.count) / total) * 100)
@@ -94,68 +97,69 @@ const isReceived = (id: number) => {
 }
 
 // 按钮状态
-const getBtnText = (item: any) => {
-  if (isReceived(item.id)) return '已领取'
+const getBtnText = (item: Coupon) => {
+  if (isReceived(getCouponId(item))) return '已领取'
   if (item.count <= 0) return '已抢光'
   return '立即领取'
 }
-const getBtnType = (item: any) => {
-  if (isReceived(item.id) || item.count <= 0) return 'info'
+const getBtnType = (item: Coupon) => {
+  if (isReceived(getCouponId(item)) || item.count <= 0) return 'info'
   return 'danger'
 }
 
 // 获取公共列表
 const fetchList = async () => {
-  const promises = [getCouponListApi()]
-  if (userStore.token) {
-    promises.push(getMyCouponIdsApi())
-  }
-  const [resList, resMy] = await Promise.all(promises)
+  const resList = await getCouponListApi()
 
   if (resList.code === 200) {
     list.value = resList.data || []
   }
-  if (resMy && resMy.code === 200) {
-    const ids = resMy.data.map((item: any) => item.couponId) // 👈 关键！
-    myCouponSet.value = new Set(ids)
+  if (userStore.token) {
+    const resMy = await getMyCouponIdsApi()
+    if (resMy.code === 200) {
+      const ids = resMy.data.map(item => item.couponId) // 👈 关键！
+      myCouponSet.value = new Set(ids)
+    }
   }
 }
 
 // 获取我的列表
 const fetchMyList = async () => {
   const res = await getMyCouponIdsApi()
-  
+
   // 👇 1. 打印原始 API 返回的数据
   console.log('原始 API 数据:', res)
   console.log('第一条数据的 useStatus:', res.data?.[0]?.useStatus)
 
   if (res.code === 200) {
     myList.value = res.data || []
-    
+
     // 👇 2. 打印赋值后的数据
     console.log('赋值后的 myList:', myList.value)
   }
 }
 
 // 领取动作
-const handleReceive = async (item: any) => {
+const handleReceive = async (item: Coupon) => {
   if (!userStore.token) {
     ElMessage.warning('请先登录')
     // router.push('/login')
     return
   }
-  loading.value[item.id] = true
+  const couponId = getCouponId(item)
+  if (!couponId) return
+  loading.value[couponId] = true
   try {
-    const res = await receiveCouponApi(item.id)
+    const res = await receiveCouponApi(couponId)
     if (res.code === 200) {
       ElMessage.success('领取成功')
-      myCouponSet.value.add(item.id) // 标记已领
+      myCouponSet.value.add(couponId) // 标记已领
       item.count-- // 视觉扣减
     } else {
       ElMessage.error(res.message || '领取失败')
     }
   } finally {
-    loading.value[item.id] = false
+    loading.value[couponId] = false
   }
 }
 

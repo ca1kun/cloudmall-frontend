@@ -26,10 +26,10 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <!-- 预热按钮 -->
-            <el-button 
-              type="warning" 
-              size="small" 
-              icon="Lightning" 
+            <el-button
+              type="warning"
+              size="small"
+              icon="Lightning"
               @click="handlePreheat(row)"
             >
               秒杀预热
@@ -83,13 +83,18 @@ import { ref, reactive, onMounted } from 'vue'
 import { getCouponPageApi, addCouponApi, preheatCouponApi } from '@/api/marketing/coupon'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh, Lightning } from '@element-plus/icons-vue'
+import type { Coupon, CouponForm } from '@/types/types'
+
+type CouponFormModel = Omit<CouponForm, 'startTime' | 'endTime'> & {
+  timeRange: string[]
+}
 
 const loading = ref(false)
-const tableData = ref([])
+const tableData = ref<Coupon[]>([])
 const dialogVisible = ref(false)
 const formRef = ref()
 
-const form = reactive({
+const form = reactive<CouponFormModel>({
   name: '',
   amount: 10,
   minPoint: 0,
@@ -110,7 +115,7 @@ const fetchData = async () => {
   loading.value = true
   const res = await getCouponPageApi({})
   if (res.code === 200) {
-    tableData.value = res.data.records || res.data
+    tableData.value = res.data.records ?? res.data.list ?? []
   }
   loading.value = false
 }
@@ -127,8 +132,12 @@ const submitForm = async () => {
   await formRef.value.validate(async (valid: boolean) => {
     if (valid) {
       // 拆分时间
-      const postData = {
-        ...form,
+      const postData: CouponForm = {
+        name: form.name,
+        amount: form.amount,
+        minPoint: form.minPoint,
+        count: form.count,
+        perLimit: form.perLimit,
         startTime: form.timeRange?.[0] || '',
         endTime: form.timeRange?.[1] || ''
       }
@@ -143,13 +152,15 @@ const submitForm = async () => {
 }
 
 // 预热操作
-const handlePreheat = (row: any) => {
+const handlePreheat = (row: Coupon) => {
+  if (!row.id) return
+  const couponId = row.id
   ElMessageBox.confirm(
     `确定要将【${row.name}】的库存加载到 Redis 吗？\n注意：这会重置秒杀状态！`,
     '预热确认',
     { type: 'warning' }
   ).then(async () => {
-    const res = await preheatCouponApi(row.id)
+    const res = await preheatCouponApi(couponId)
     if (res.code === 200) {
       ElMessage.success('预热成功！可以开始秒杀了')
     }

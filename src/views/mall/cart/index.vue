@@ -88,11 +88,12 @@ import { useRouter } from 'vue-router'
 import { getCartListApi, addCartApi, deleteCartApi } from '@/api/mall/cart'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useCartStore } from '@/stores/cart'
+import type { CartItem } from '@/types/types'
 
 const cartStore = useCartStore()
 const router = useRouter()
 const loading = ref(false)
-const cartList = ref<any[]>([])
+const cartList = ref<CartItem[]>([])
 
 // 计算总价
 const totalPrice = computed(() => {
@@ -119,7 +120,7 @@ const fetchCart = async () => {
 
 // 修改数量
 // val: 新值, oldVal: 旧值
-const handleQuantityChange = async (row: any, val: number | undefined, oldVal: number | undefined) => {
+const handleQuantityChange = async (row: CartItem, val: number | undefined, oldVal: number | undefined) => {
     if (val === undefined || oldVal === undefined) return
 
     // 计算差值 (比如从 1 变成 2，差值是 1；从 5 变成 3，差值是 -2)
@@ -140,11 +141,10 @@ const handleQuantityChange = async (row: any, val: number | undefined, oldVal: n
     }
 }
 
-// 删除商品 
-const handleDelete = (row: any) => {
+// 删除商品
+const handleDelete = (row: CartItem) => {
     ElMessageBox.confirm('确定要移出购物车吗?', '提示', { type: 'warning' })
         .then(async () => {
-            // ✅ 调用真正的删除接口
             await deleteCartApi(row.productId)
             ElMessage.success('删除成功')
             fetchCart() // 刷新列表

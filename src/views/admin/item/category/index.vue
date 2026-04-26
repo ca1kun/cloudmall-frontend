@@ -42,17 +42,13 @@ import CategoryForm from '@/components/CategoryForm.vue'
 // 导入api接口
 import { listCategory } from '@/api/item/category'
 import { deleteCategoryApi } from '@/api/item/category' // 引入接口
+import type { Category } from '@/types/types'
 
 
 onMounted(() => {
     getCategoryList()
 })
 
-interface Category {
-    categoryId: number
-    parentId: number
-    categoryName: string
-}
 const categoryList = ref<Category[]>([])
 
 // 关闭弹窗时重置 ID，防止下次打开新增时还残留着修改的 ID
@@ -83,7 +79,7 @@ function handleAdd() {
 
 /** 修改按钮 */
 function handleUpdate(row: Category) {
-    categoryId.value = row.categoryId
+    categoryId.value = row.categoryId ?? 0
     dialogOpen.value = true
     title.value = "修改类别"
 }
@@ -96,7 +92,7 @@ function handleDelete(row: Category) {
         { confirmButtonText: '是', cancelButtonText: '否', type: 'warning' }
     )
         .then(async () => {
-            const res = await deleteCategoryApi(row.categoryId)
+            const res = await deleteCategoryApi(row.categoryId ?? 0)
             if (res.code === 200) {
                 ElMessage.success('删除成功')
                 getCategoryList() // 刷新列表
