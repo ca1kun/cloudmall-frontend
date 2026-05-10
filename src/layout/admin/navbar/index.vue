@@ -1,12 +1,12 @@
 <template>
     <div class="navbar">
         <!-- 左侧面包屑或标题 -->
-        <div class="left-breadcrumb">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                <el-breadcrumb-item>后台管理</el-breadcrumb-item>
-            </el-breadcrumb>
-        </div>
+            <div class="left-breadcrumb">
+                <el-breadcrumb separator="/">
+                    <el-breadcrumb-item :to="{ path: getRoleHomePath(userStore.role) }">首页</el-breadcrumb-item>
+                    <el-breadcrumb-item>{{ layoutTitle }}</el-breadcrumb-item>
+                </el-breadcrumb>
+            </div>
 
         <!-- 右侧菜单 -->
         <div class="right-menu">
@@ -40,21 +40,20 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router' // 引入 router
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { UserFilled, CaretBottom, User, SwitchButton } from '@element-plus/icons-vue' // 引入更多图标
+import { getRoleHomePath, getRoleProfilePath } from '@/utils/role'
 
 const userStore = useUserStore()
 const router = useRouter()
+const layoutTitle = computed(() => (userStore.role === 'MERCHANT' ? '商家工作台' : '后台管理'))
 
 // 跳转逻辑
 const toProfile = () => {
-    if (userStore.role === 'ADMIN') {
-        router.push('/profile')
-    } else {
-        router.push('/mall/profile')
-    }
+    router.push(getRoleProfilePath(userStore.role))
 }
 
 const handleLogout = () => {

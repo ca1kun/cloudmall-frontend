@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 // 引入你原来的 admin 路由数据 (假设你把它放在同目录的 router.ts 或 routerData.ts 中)
 // 注意：请确保 routerData 里的 component 路径也是对的
 import { adminRouters } from './adminRouter'
+import { merchantRouters } from './merchantRouter'
 import { mallRoutes } from './mallRoutes'
 import { canAccessCurrentRoute, getRoleHomePath, normalizeRole } from '@/utils/role'
 
@@ -29,6 +30,16 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'ADMIN' },
       children: [
         ...adminRouters
+      ]
+    },
+
+    {
+      path: '/merchant',
+      component: () => import('@/layout/merchant/index.vue'),
+      redirect: '/merchant/home',
+      meta: { requiresAuth: true, role: 'MERCHANT' },
+      children: [
+        ...merchantRouters
       ]
     },
 

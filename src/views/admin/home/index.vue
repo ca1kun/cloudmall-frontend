@@ -3,7 +3,7 @@
     <div class="dashboard-shell">
       <section class="hero-panel">
         <div class="hero-copy">
-          <p class="hero-kicker">CloudMall · ECharts 数据大屏</p>
+          <p class="hero-kicker">CloudMall · Overview</p>
           <h1 class="hero-title">商城经营总览</h1>
           <p class="hero-desc">
             订单、销售、商品、用户和渠道表现统一汇总，支持实时轮询、趋势洞察和热销分析。
@@ -45,7 +45,7 @@
                 <div class="panel-title">近七日经营趋势</div>
                 <div class="panel-desc">销售额、订单数、客单价走势</div>
               </div>
-              <el-tag effect="dark" type="success">Live</el-tag>
+              <el-tag effect="plain" type="success">Live</el-tag>
             </div>
           </template>
           <div ref="trendChartRef" class="chart-box chart-large"></div>
@@ -58,7 +58,7 @@
                 <div class="panel-title">热销商品 Top 6</div>
                 <div class="panel-desc">按近七日销量排序</div>
               </div>
-              <el-tag effect="dark" type="warning">Top</el-tag>
+              <el-tag effect="plain" type="warning">Top</el-tag>
             </div>
           </template>
           <el-table :data="topProducts" class="rank-table" :show-header="false" size="small">
@@ -81,7 +81,7 @@
                 <div class="panel-title">品类销售占比</div>
                 <div class="panel-desc">不同品类销售结构分布</div>
               </div>
-              <el-tag effect="dark" type="info">Pie</el-tag>
+              <el-tag effect="plain" type="info">Pie</el-tag>
             </div>
           </template>
           <div ref="categoryChartRef" class="chart-box chart-medium"></div>
@@ -94,7 +94,7 @@
                 <div class="panel-title">热销渠道表现</div>
                 <div class="panel-desc">不同渠道成交订单分布</div>
               </div>
-              <el-tag effect="dark" type="primary">Bar</el-tag>
+              <el-tag effect="plain" type="primary">Bar</el-tag>
             </div>
           </template>
           <div ref="channelChartRef" class="chart-box chart-medium"></div>
@@ -107,7 +107,7 @@
                 <div class="panel-title">最新订单</div>
                 <div class="panel-desc">实时刷新最近成交记录</div>
               </div>
-              <el-tag effect="dark" type="danger">Now</el-tag>
+              <el-tag effect="plain" type="danger">Now</el-tag>
             </div>
           </template>
           <el-table :data="recentOrders" class="order-table" size="small">
@@ -146,10 +146,10 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
   border-radius: 24px;
   overflow: hidden;
   background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 30%),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.18), transparent 26%),
-    linear-gradient(180deg, #0f172a 0%, #111827 42%, #0b1220 100%);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 26%),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.06), transparent 22%),
+    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  box-shadow: var(--app-shadow-md);
 }
 
 .dashboard-shell::before,
@@ -162,9 +162,9 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 
 .dashboard-shell::before {
   background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
   background-size: 24px 24px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 95%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.82), transparent 96%);
 }
 
 .hero-panel {
@@ -175,10 +175,10 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
   gap: 18px;
   padding: 20px 22px;
   margin-bottom: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--app-border);
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(30, 41, 59, 0.62));
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  backdrop-filter: blur(8px);
 }
 
 .hero-copy {
@@ -188,7 +188,7 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 
 .hero-kicker {
   margin: 0 0 8px;
-  color: #7dd3fc;
+  color: var(--app-primary);
   font-size: 13px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -196,7 +196,7 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 
 .hero-title {
   margin: 0;
-  color: #f8fafc;
+  color: var(--app-text);
   font-size: 30px;
   font-weight: 800;
   letter-spacing: 0.03em;
@@ -205,7 +205,7 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 .hero-desc {
   max-width: 760px;
   margin: 10px 0 0;
-  color: #cbd5e1;
+  color: var(--app-text-muted);
   line-height: 1.7;
 }
 
@@ -213,27 +213,27 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
   min-width: 220px;
   padding: 14px 16px;
   border-radius: 16px;
-  border: 1px solid rgba(125, 211, 252, 0.18);
-  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--app-border);
+  background: #ffffff;
   text-align: right;
 }
 
 .clock-label {
-  color: #7dd3fc;
+  color: var(--app-primary);
   font-size: 12px;
   letter-spacing: 0.08em;
 }
 
 .clock-value {
   margin-top: 6px;
-  color: #f8fafc;
+  color: var(--app-text);
   font-size: 28px;
   font-weight: 700;
 }
 
 .clock-meta {
   margin-top: 4px;
-  color: #94a3b8;
+  color: var(--app-text-muted);
   font-size: 12px;
 }
 
@@ -247,15 +247,15 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 }
 
 .metric-card {
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--app-border);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(17, 24, 39, 0.82));
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  background: #ffffff;
+  box-shadow: var(--app-shadow-sm);
 }
 
 .metric-card :deep(.el-card__body),
 .panel-card :deep(.el-card__body) {
-  color: #e2e8f0;
+  color: var(--app-text);
 }
 
 .metric-top {
@@ -266,13 +266,13 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 }
 
 .metric-label {
-  color: #94a3b8;
+  color: var(--app-text-muted);
   font-size: 13px;
 }
 
 .metric-value {
   margin-top: 10px;
-  color: #f8fafc;
+  color: var(--app-text);
   font-size: 28px;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -288,19 +288,19 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 }
 
 .metric-icon.blue {
-  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  background: linear-gradient(135deg, #93c5fd, #2563eb);
 }
 
 .metric-icon.green {
-  background: linear-gradient(135deg, #34d399, #059669);
+  background: linear-gradient(135deg, #86efac, #059669);
 }
 
 .metric-icon.orange {
-  background: linear-gradient(135deg, #fbbf24, #f97316);
+  background: linear-gradient(135deg, #fde68a, #f97316);
 }
 
 .metric-icon.purple {
-  background: linear-gradient(135deg, #c084fc, #7c3aed);
+  background: linear-gradient(135deg, #ddd6fe, #7c3aed);
 }
 
 .metric-bottom {
@@ -320,15 +320,15 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 }
 
 .metric-trend.up {
-  color: #34d399;
+  color: var(--app-success);
 }
 
 .metric-trend.down {
-  color: #fca5a5;
+  color: var(--app-danger);
 }
 
 .metric-subtext {
-  color: #94a3b8;
+  color: var(--app-text-muted);
 }
 
 .panel-grid {
@@ -348,15 +348,15 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 }
 
 .panel-card {
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--app-border);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.84), rgba(15, 23, 42, 0.72));
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+  background: #ffffff;
+  box-shadow: var(--app-shadow-sm);
 }
 
 .panel-card :deep(.el-card__header) {
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-  background: rgba(15, 23, 42, 0.65);
+  border-bottom: 1px solid var(--app-border);
+  background: #ffffff;
 }
 
 .panel-header {
@@ -367,14 +367,14 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 }
 
 .panel-title {
-  color: #f8fafc;
+  color: var(--app-text);
   font-size: 16px;
   font-weight: 700;
 }
 
 .panel-desc {
   margin-top: 4px;
-  color: #94a3b8;
+  color: var(--app-text-muted);
   font-size: 12px;
 }
 
@@ -411,21 +411,21 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
 
 .rank-table :deep(.el-table__header-wrapper th),
 .order-table :deep(.el-table__header-wrapper th) {
-  background: rgba(15, 23, 42, 0.85);
-  color: #cbd5e1;
-  border-bottom-color: rgba(148, 163, 184, 0.18);
+  background: #f8fafc;
+  color: var(--app-text);
+  border-bottom-color: var(--app-border);
 }
 
 .rank-table :deep(.el-table__body-wrapper td),
 .order-table :deep(.el-table__body-wrapper td) {
-  background: rgba(15, 23, 42, 0.55);
-  color: #e2e8f0;
-  border-bottom-color: rgba(148, 163, 184, 0.12);
+  background: #ffffff;
+  color: var(--app-text);
+  border-bottom-color: rgba(229, 234, 242, 0.85);
 }
 
 .rank-table :deep(.el-table__body tr:hover > td),
 .order-table :deep(.el-table__body tr:hover > td) {
-  background: rgba(37, 99, 235, 0.12);
+  background: #f4f8ff;
 }
 
 .rank-badge {
@@ -435,15 +435,15 @@ const { currentTime, currentDate, metrics, topProducts, recentOrders, trendChart
   border-radius: 999px;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.18);
-  color: #93c5fd;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
   font-size: 12px;
   font-weight: 700;
 }
 
 .rank-badge.hot {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
+  background: #fff1f2;
+  color: var(--app-danger);
 }
 
 @media (max-width: 1280px) {

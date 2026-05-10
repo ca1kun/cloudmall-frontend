@@ -178,8 +178,9 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* 升级为深蓝色渐变，更有科技感 */
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
+    linear-gradient(180deg, #fbfcfe 0%, #f3f7fc 100%);
   position: relative;
   overflow: hidden;
 }
@@ -188,8 +189,8 @@ const handleLogin = async () => {
 .login-container::before {
   content: "";
   position: absolute;
-  width: 300px; height: 300px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 68%);
   border-radius: 50%;
   top: -100px; right: -100px;
 }
@@ -197,9 +198,11 @@ const handleLogin = async () => {
 .login-box {
   width: 420px;
   padding: 40px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(229, 234, 242, 0.9);
+  border-radius: 24px;
+  box-shadow: var(--app-shadow-lg);
+  backdrop-filter: blur(12px);
   z-index: 10;
 }
 
@@ -211,25 +214,25 @@ const handleLogin = async () => {
 .logo-circle {
   width: 60px;
   height: 60px;
-  background: #409EFF;
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0 auto 15px;
-  box-shadow: 0 4px 10px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.24);
 }
 
 .title {
   font-size: 26px;
-  color: #303133;
+  color: var(--app-text);
   font-weight: 700;
   margin: 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #909399;
+  color: var(--app-text-muted);
   margin-top: 8px;
 }
 
@@ -240,7 +243,7 @@ const handleLogin = async () => {
 /* 覆盖 tabs 底部横线样式 */
 :deep(.el-tabs__nav-wrap::after) {
   height: 1px;
-  background-color: #f0f0f0;
+  background-color: var(--app-border);
 }
 
 .code-wrapper {
@@ -261,7 +264,7 @@ const handleLogin = async () => {
   border-radius: 8px;
   margin-top: 10px;
   letter-spacing: 1px;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.2);
 }
 
 .login-footer {
@@ -269,19 +272,19 @@ const handleLogin = async () => {
 }
 
 .footer-text {
-  color: #c0c4cc;
+  color: var(--app-text-muted);
   font-size: 12px;
   font-weight: 400;
 }
 
 .login-form :deep(.el-input__wrapper) {
-  background-color: #f5f7fa;
+  background-color: #f8fafc;
   box-shadow: none !important;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--app-border);
 }
 
 .login-form :deep(.el-input__wrapper.is-focus) {
-  border-color: #409EFF;
+  border-color: var(--app-primary);
   background-color: #fff;
 }
 </style>

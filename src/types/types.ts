@@ -83,6 +83,35 @@ export interface SuperAdminQueryParams extends PageRequest {
   status?: number | ''
 }
 
+export interface ManagedAccount {
+  id?: number
+  userName: string
+  nickName: string
+  phone?: string
+  email?: string
+  status?: number
+  remark?: string
+  createTime?: string
+}
+
+export interface ManagedAccountForm {
+  id?: number
+  userName: string
+  nickName: string
+  phone: string
+  email: string
+  password?: string
+  status: number
+  remark: string
+}
+
+export interface ManagedAccountQueryParams extends PageRequest {
+  userName?: string
+  nickName?: string
+  phone?: string
+  status?: number | ''
+}
+
 export interface Product {
   productId?: number
   productSn: string
@@ -130,6 +159,8 @@ export interface Coupon {
   startTime: string
   endTime: string
   useStatus?: 0 | 1
+  scopeType?: 'MALL' | 'MERCHANT'
+  scopeName?: string
 }
 
 export interface CouponForm {
@@ -141,10 +172,12 @@ export interface CouponForm {
   perLimit: number
   startTime: string
   endTime: string
+  scopeType?: 'MALL' | 'MERCHANT'
 }
 
 export interface CouponQueryParams extends Partial<PageRequest> {
   name?: string
+  scopeType?: 'MALL' | 'MERCHANT'
 }
 
 export interface OrderParam {

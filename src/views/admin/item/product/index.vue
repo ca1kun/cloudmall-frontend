@@ -356,40 +356,37 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="product-management">
-    <!-- 头部搜索栏 -->
-    <div class="page-header">
-      <h2 class="page-title">产品管理</h2>
-      <div class="toolbar">
-        <el-button type="primary" @click="addPro" class="add-btn">
-          <span class="btn-icon">+</span> 添加产品
-        </el-button>
-        <el-button type="danger" :disabled="selectedProducts.length === 0" @click="batchDelete"
-          class="batch-delete-btn">
-          批量删除
-          <span class="badge" v-if="selectedProducts.length > 0">{{ selectedProducts.length }}</span>
-        </el-button>
-
-        <el-form :model="queryParams" ref="queryRef" :inline="true" style="margin-left: 20px;">
-          <el-form-item label="名称">
-            <el-input v-model="queryParams.productName" placeholder="输入名称" clearable @keyup.enter="search" />
-          </el-form-item>
-          <el-form-item label="分类">
-            <!-- 搜索栏也可以用级联选择器 -->
-            <el-cascader v-model="queryParams.productCategoryId" :options="categoryTree"
-              :props="{ ...cascaderProps, checkStrictly: true }" placeholder="全部" clearable :show-all-levels="false" />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" icon="Search" @click="search">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
+  <div class="product-management page-shell">
+    <el-card class="page-card" shadow="never">
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">产品管理</h2>
+          <p class="page-subtitle">统一维护商品信息，控制上架节奏与库存状态。</p>
+        </div>
+        <div class="page-toolbar">
+          <el-button type="primary" icon="Plus" @click="addPro" class="add-btn">添加产品</el-button>
+          <el-button type="danger" :disabled="selectedProducts.length === 0" @click="batchDelete" class="batch-delete-btn">
+            批量删除
+            <span class="badge" v-if="selectedProducts.length > 0">{{ selectedProducts.length }}</span>
+          </el-button>
+        </div>
       </div>
-    </div>
 
-    <!-- 表格区域 -->
-    <div class="table-container">
-      <el-table :data="productList" v-loading="loading" @selection-change="handleSelectionChange" stripe border>
+      <el-form :model="queryParams" ref="queryRef" :inline="true" class="search-form">
+        <el-form-item label="名称">
+          <el-input v-model="queryParams.productName" placeholder="输入名称" clearable @keyup.enter="search" />
+        </el-form-item>
+        <el-form-item label="分类">
+          <el-cascader v-model="queryParams.productCategoryId" :options="categoryTree"
+            :props="{ ...cascaderProps, checkStrictly: true }" placeholder="全部" clearable :show-all-levels="false" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="Search" @click="search">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-table :data="productList" v-loading="loading" @selection-change="handleSelectionChange" stripe border class="soft-table product-table">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column prop="productId" label="ID" width="80" align="center" />
 
@@ -427,13 +424,12 @@ onMounted(() => {
         </el-table-column>
       </el-table>
 
-      <!-- 分页 -->
-      <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+      <div class="pagination-wrap">
         <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[5, 10, 20]"
           layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
           @current-change="handleCurrentChange" />
       </div>
-    </div>
+    </el-card>
 
     <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialogFormVisible" :title="formTitle" width="600px" :close-on-click-modal="false">
@@ -491,16 +487,41 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* 简单的样式补丁，保证布局正常 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.product-management {
+  display: grid;
+  gap: 0;
 }
 
-.toolbar {
+.search-form {
+  margin: 4px 0 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+}
+
+.pagination-wrap {
+  margin-top: 18px;
   display: flex;
-  align-items: center;
+  justify-content: flex-end;
+}
+
+.product-table :deep(.el-image) {
+  border-radius: 10px;
+}
+
+.product-table :deep(.el-table__inner-wrapper) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+@media (max-width: 960px) {
+  .page-header {
+    flex-direction: column;
+  }
+
+  .search-form {
+    padding: 12px;
+  }
 }
 </style>

@@ -1,16 +1,28 @@
 <template>
-  <div class="app-container">
-    <el-card>
-      <!-- 顶部操作栏 -->
-      <div class="header-actions">
-        <el-button type="primary" icon="Plus" @click="handleAdd">新增优惠券</el-button>
-        <el-button icon="Refresh" @click="fetchData">刷新</el-button>
+  <div class="app-container page-shell coupon-page">
+    <el-card class="page-card" shadow="never">
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">{{ pageTitle }}</h2>
+          <p class="page-subtitle">{{ pageSubtitle }}</p>
+        </div>
+        <div class="page-toolbar">
+          <el-tag effect="plain" type="info">当前范围：{{ scopeLabel }}</el-tag>
+          <el-button type="primary" icon="Plus" @click="handleAdd">新增优惠券</el-button>
+          <el-button icon="Refresh" @click="fetchData">刷新</el-button>
+        </div>
       </div>
 
-      <!-- 表格 -->
-      <el-table :data="tableData" border style="width: 100%; margin-top: 20px;" v-loading="loading">
+      <el-table :data="tableData" border class="soft-table coupon-table" v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="名称" />
+        <el-table-column prop="name" label="名称" min-width="180" />
+        <el-table-column prop="scopeType" label="适用范围" width="130" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.scopeType === 'MERCHANT' ? 'warning' : 'success'" effect="plain" size="small">
+              {{ getScopeTag(row.scopeType) }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="amount" label="面额" width="100">
           <template #default="{ row }">¥{{ row.amount }}</template>
         </el-table-column>
@@ -25,15 +37,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <!-- 预热按钮 -->
-            <el-button
-              type="warning"
-              size="small"
-              icon="Lightning"
-              @click="handlePreheat(row)"
-            >
-              秒杀预热
-            </el-button>
+            <el-button type="warning" size="small" icon="Lightning" @click="handlePreheat(row)">预热</el-button>
             <el-button type="danger" size="small" link>删除</el-button>
           </template>
         </el-table-column>
@@ -41,10 +45,13 @@
     </el-card>
 
     <!-- 新增弹窗 -->
-    <el-dialog v-model="dialogVisible" title="新增优惠券" width="500px">
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" destroy-on-close>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="优惠券名称" prop="name">
           <el-input v-model="form.name" placeholder="例如：满100减10" />
+        </el-form-item>
+        <el-form-item label="适用范围">
+          <el-input :model-value="scopeLabel" disabled />
         </el-form-item>
         <el-form-item label="面额" prop="amount">
           <el-input-number v-model="form.amount" :min="1" :precision="2" />
@@ -79,14 +86,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { getCouponPageApi, addCouponApi, preheatCouponApi } from '@/api/marketing/coupon'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh, Lightning } from '@element-plus/icons-vue'
 import type { Coupon, CouponForm } from '@/types/types'
 
+type CouponScope = 'MALL' | 'MERCHANT'
+
 type CouponFormModel = Omit<CouponForm, 'startTime' | 'endTime'> & {
   timeRange: string[]
+}
+
+const route = useRoute()
+const couponScope = computed<CouponScope>(() => ((route.meta as { couponScope?: CouponScope }).couponScope ?? 'MALL'))
+const scopeLabel = computed(() => (couponScope.value === 'MERCHANT' ? '商家店铺券' : '全商城券'))
+const pageTitle = computed(() => (couponScope.value === 'MERCHANT' ? '营销管理' : '优惠券管理'))
+const pageSubtitle = computed(() =>
+  couponScope.value === 'MERCHANT'
+    ? '商家仅能创建与管理自己店铺可用的优惠券。'
+    : '超级管理员创建全商城通用优惠券，所有店铺均可使用。',
+)
+const dialogTitle = computed(() => `新增${scopeLabel.value}`)
+
+const getScopeTag = (scopeType?: CouponScope) => {
+  return scopeType === 'MERCHANT' ? '商家店铺券' : '全商城券'
 }
 
 const loading = ref(false)
@@ -100,7 +125,8 @@ const form = reactive<CouponFormModel>({
   minPoint: 0,
   count: 100,
   perLimit: 1,
-  timeRange: [] as string[]
+  scopeType: couponScope.value,
+  timeRange: [] as string[],
 })
 
 const rules = {
@@ -113,7 +139,7 @@ const rules = {
 // 查询列表
 const fetchData = async () => {
   loading.value = true
-  const res = await getCouponPageApi({})
+  const res = await getCouponPageApi({ scopeType: couponScope.value })
   if (res.code === 200) {
     tableData.value = res.data.records ?? res.data.list ?? []
   }
@@ -122,6 +148,7 @@ const fetchData = async () => {
 
 // 打开新增
 const handleAdd = () => {
+  form.scopeType = couponScope.value
   dialogVisible.value = true
   // 重置表单逻辑...
 }
@@ -138,6 +165,7 @@ const submitForm = async () => {
         minPoint: form.minPoint,
         count: form.count,
         perLimit: form.perLimit,
+        scopeType: couponScope.value,
         startTime: form.timeRange?.[0] || '',
         endTime: form.timeRange?.[1] || ''
       }
@@ -156,7 +184,7 @@ const handlePreheat = (row: Coupon) => {
   if (!row.id) return
   const couponId = row.id
   ElMessageBox.confirm(
-    `确定要将【${row.name}】的库存加载到 Redis 吗？\n注意：这会重置秒杀状态！`,
+    `确定要将【${row.name}】的库存加载到 Redis 吗？\n注意：这会重置当前券的预热状态！`,
     '预热确认',
     { type: 'warning' }
   ).then(async () => {
@@ -180,5 +208,13 @@ onMounted(() => {
 .header-actions {
   display: flex;
   gap: 10px;
+}
+
+.coupon-page {
+  min-height: 100%;
+}
+
+.coupon-table {
+  margin-top: 2px;
 }
 </style>

@@ -1,30 +1,29 @@
 <template>
-    <div class="app-container">
-        <el-row :gutter="10">
-            <el-col :span="1.5">
-                <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-            </el-col>
-            <el-col :span="1.5" v-if="categoryList.length > 0">
-                <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-            </el-col>
-        </el-row>
-        <el-divider />
-        <el-row :gutter="20">
-            <el-table :data="categoryList" style="width: 100%">
-                <el-table-column prop="categoryId" label="类别ID" align="center" width="200"></el-table-column>
-                <el-table-column prop="parentId" label="上级ID" align="center" width="200"></el-table-column>
-                <el-table-column prop="categoryName" label="类别名称" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
+    <div class="app-container page-shell">
+        <el-card class="page-card" shadow="never">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">类别管理</h2>
+                    <p class="page-subtitle">维护商品分类结构，保持层级清晰、录入高效。</p>
+                </div>
+                <div class="page-toolbar">
+                    <el-button type="primary" icon="Plus" @click="handleAdd">新增类别</el-button>
+                    <el-button v-if="categoryList.length > 0" icon="Download" @click="handleExport">导出</el-button>
+                </div>
+            </div>
+
+            <el-table :data="categoryList" class="soft-table category-table" border stripe>
+                <el-table-column prop="categoryId" label="类别ID" align="center" width="180" />
+                <el-table-column prop="parentId" label="上级ID" align="center" width="180" />
+                <el-table-column prop="categoryName" label="类别名称" align="center" />
+                <el-table-column label="操作" align="center" width="180">
                     <template #default="scope">
-                        <el-button link type="primary" icon="Edit" size="small"
-                            @click="handleUpdate(scope.row)">修改</el-button>
-                        <!-- 👇 新增删除按钮 -->
-                        <el-button link type="danger" icon="Delete" size="small"
-                            @click="handleDelete(scope.row)">删除</el-button>
+                        <el-button link type="primary" icon="Edit" size="small" @click="handleUpdate(scope.row)">修改</el-button>
+                        <el-button link type="danger" icon="Delete" size="small" @click="handleDelete(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-        </el-row>
+        </el-card>
 
         <el-dialog v-model="dialogOpen" :title="title" width="500" @close="resetForm">
             <!-- 监听 success 事件刷新列表，监听 close 事件关闭弹窗 -->
@@ -110,6 +109,23 @@ function handleExport() {
 
 </script>
 
-<style>
-@media (min-width: 1024px) {}
+<style scoped>
+.category-table {
+    margin-top: 4px;
+}
+
+.category-table :deep(.el-table__inner-wrapper) {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+    }
+
+    .page-toolbar {
+        width: 100%;
+    }
+}
 </style>

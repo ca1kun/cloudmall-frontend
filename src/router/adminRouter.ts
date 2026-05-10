@@ -22,7 +22,7 @@ export const adminRouters = [
     meta: {
       icon: 'Grid',
       title: '商品管理',
-      roles: ['ADMIN', 'SUPER_ADMIN'],
+      roles: ['ADMIN'],
     },
     children: [
       {
@@ -31,7 +31,7 @@ export const adminRouters = [
         meta: {
           icon: 'Folder',
           title: '类别',
-          roles: ['ADMIN', 'SUPER_ADMIN'],
+          roles: ['ADMIN'],
         },
         component: () => import('@/views/admin/item/category/index.vue'),
       },
@@ -41,7 +41,7 @@ export const adminRouters = [
         meta: {
           icon: 'Goods',
           title: '商品',
-          roles: ['ADMIN', 'SUPER_ADMIN'],
+          roles: ['ADMIN'],
         },
         component: () => import('@/views/admin/item/product/index.vue'),
       },
@@ -54,7 +54,7 @@ export const adminRouters = [
     meta: {
       icon: 'Shop',
       title: '销售管理',
-      roles: ['ADMIN', 'SUPER_ADMIN'],
+      roles: ['ADMIN'],
     },
     children: [
       {
@@ -63,7 +63,7 @@ export const adminRouters = [
         meta: {
           icon: 'Sell',
           title: '销售',
-          roles: ['ADMIN', 'SUPER_ADMIN'],
+          roles: ['ADMIN'],
         },
         component: () => import('@/views/admin/pos/sale/index.vue'),
       },
@@ -73,7 +73,7 @@ export const adminRouters = [
         meta: {
           icon: 'Wallet',
           title: '支付',
-          roles: ['ADMIN', 'SUPER_ADMIN'],
+          roles: ['ADMIN'],
         },
         component: () => import('@/views/admin/pos/payment/index.vue'),
       },
@@ -82,13 +82,13 @@ export const adminRouters = [
   {
     path: '/marketing',
     name: 'Marketing',
-    meta: { title: '营销管理', icon: 'Present', roles: ['ADMIN', 'SUPER_ADMIN'] },
+    meta: { title: '营销管理', icon: 'Present', roles: ['SUPER_ADMIN'] },
     children: [
       {
         path: '/marketing/coupon',
         name: 'CouponManage',
         component: () => import('@/views/admin/marketing/coupon/index.vue'),
-        meta: { title: '优惠券管理', icon: 'Ticket', roles: ['ADMIN', 'SUPER_ADMIN'] }
+        meta: { title: '优惠券管理', icon: 'Ticket', roles: ['SUPER_ADMIN'], couponScope: 'MALL' }
       }
     ]
   },
@@ -103,6 +103,18 @@ export const adminRouters = [
         name: 'SuperAdminManage',
         component: () => import('@/views/admin/system/admin/index.vue'),
         meta: { title: '超级管理员', icon: 'UserFilled', roles: ['SUPER_ADMIN'] },
+      },
+      {
+        path: '/system/merchant',
+        name: 'MerchantManage',
+        component: () => import('@/views/admin/system/account/index.vue'),
+        meta: { title: '商家管理', icon: 'Shop', roles: ['SUPER_ADMIN'], accountType: 'merchant' },
+      },
+      {
+        path: '/system/customer',
+        name: 'CustomerManage',
+        component: () => import('@/views/admin/system/account/index.vue'),
+        meta: { title: '顾客管理', icon: 'User', roles: ['SUPER_ADMIN'], accountType: 'customer' },
       },
     ],
   },
