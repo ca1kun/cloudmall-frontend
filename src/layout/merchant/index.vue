@@ -27,8 +27,8 @@
 </template>
 
 <script lang="ts" setup>
-import NavBar from '@/layout/admin/navbar/index.vue'
-import SideBar from '@/layout/admin/sidebar/index.vue'
+import NavBar from '@/layout/merchant/navbar/index.vue'
+import SideBar from '@/layout/merchant/sidebar/index.vue'
 </script>
 
 <style scoped>

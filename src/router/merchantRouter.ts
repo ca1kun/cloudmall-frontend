@@ -32,7 +32,7 @@ export const merchantRouters = [
       {
         path: '/merchant/item/product',
         name: 'merchant-product',
-        component: () => import('@/views/admin/item/product/index.vue'),
+        component: () => import('@/views/merchant/item/product/index.vue'),
         meta: {
           icon: 'Goods',
           title: '商品',
@@ -42,7 +42,7 @@ export const merchantRouters = [
       {
         path: '/merchant/item/category',
         name: 'merchant-category',
-        component: () => import('@/views/admin/item/category/index.vue'),
+        component: () => import('@/views/merchant/item/category/index.vue'),
         meta: {
           icon: 'Folder',
           title: '类别',
@@ -64,7 +64,7 @@ export const merchantRouters = [
       {
         path: '/merchant/pos/sale',
         name: 'merchant-sale',
-        component: () => import('@/views/admin/pos/sale/index.vue'),
+        component: () => import('@/views/merchant/pos/sale/index.vue'),
         meta: {
           icon: 'Sell',
           title: '订单列表',
@@ -74,7 +74,7 @@ export const merchantRouters = [
       {
         path: '/merchant/pos/payment',
         name: 'merchant-payment',
-        component: () => import('@/views/admin/pos/payment/index.vue'),
+        component: () => import('@/views/merchant/pos/payment/index.vue'),
         meta: {
           icon: 'Wallet',
           title: '收款',
@@ -96,7 +96,7 @@ export const merchantRouters = [
       {
         path: '/merchant/marketing/coupon',
         name: 'merchant-coupon',
-        component: () => import('@/views/admin/marketing/coupon/index.vue'),
+        component: () => import('@/views/merchant/marketing/coupon/index.vue'),
         meta: {
           icon: 'Ticket',
           title: '优惠券管理',

@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <!-- 表格展示 -->
     <el-table v-loading="loading" :data="saleList" row-key="saleId">
       <el-table-column label="订单ID" prop="saleId" align="center" width="80" />
       <el-table-column label="订单号" prop="saleNo" align="center" />
@@ -34,12 +33,10 @@
       </el-table-column>
     </el-table>
 
-    <!-- 分页组件 -->
     <el-pagination v-model:current-page="queryParams.pageNum" v-model:page-size="queryParams.pageSize"
       :page-sizes="[10, 20, 50, 100]" :total="total" layout="total, sizes, prev, pager, next, jumper"
       @size-change="getList" @current-change="getList" />
 
-    <!-- 查看订单详情 - 抽屉 -->
     <el-drawer v-model="drawerVisible" title="订单详情" direction="rtl" size="50%">
       <div class="drawer-content" v-if="currentSale">
         <h3>订单信息</h3>
@@ -56,7 +53,6 @@
       </div>
     </el-drawer>
 
-    <!-- 支付 - 对话框 -->
     <el-dialog v-model="paymentDialogVisible" title="订单支付" width="30%">
       <el-form :model="paymentForm" label-width="100px">
         <el-form-item label="订单总额">
@@ -85,7 +81,6 @@ import type { SaleDTO, SaleQueryParams, PaymentForm } from '@/types/index'
 import type { SaleItem } from '@/types/types'
 import { ElMessage } from 'element-plus'
 
-// --- 响应式状态定义 ---
 const loading = ref(true)
 const saleList = ref<SaleDTO[]>([])
 const total = ref(0)
@@ -105,9 +100,6 @@ const paymentForm = reactive<PaymentForm>({
   amount: 0.00,
 })
 
-// --- 业务方法 ---
-
-// 获取订单列表
 const getList = async () => {
   loading.value = true
   try {
@@ -119,7 +111,6 @@ const getList = async () => {
   }
 }
 
-// 查看订单详情
 const handleView = async (row: SaleDTO) => {
   currentSale.value = row
   const response = await listSaleItemById(row.saleId)
@@ -127,28 +118,25 @@ const handleView = async (row: SaleDTO) => {
   drawerVisible.value = true
 }
 
-// 打开支付对话框
 const handlePay = (row: SaleDTO) => {
   paymentForm.saleId = row.saleId
   paymentForm.amount = row.total
-  paymentForm.payMethod = 'CASH' // 默认值
+  paymentForm.payMethod = 'CASH'
   paymentDialogVisible.value = true
 }
 
-// 提交支付
 const submitPayment = async () => {
   try {
     await addPayment(paymentForm)
     ElMessage.success('支付成功！')
     paymentDialogVisible.value = false
-    await getList() // 刷新列表
+    await getList()
   } catch (error) {
     console.error('支付失败:', error)
     ElMessage.error('支付操作失败')
   }
 }
 
-// --- 辅助方法 ---
 const formatStatus = (status: string): string => {
   const statusMap: Record<string, string> = {
     completed: '已完成',
@@ -167,8 +155,6 @@ const statusTagType = (status: string) => {
   return 'info'
 }
 
-
-// --- 生命周期钩子 ---
 onMounted(() => {
   getList()
 })

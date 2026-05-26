@@ -53,36 +53,6 @@ export interface PasswordUpdateForm {
   confirmPassword?: string
 }
 
-export interface SuperAdmin {
-  adminId?: number
-  userName: string
-  nickName: string
-  phone?: string
-  email?: string
-  status?: number
-  remark?: string
-  createTime?: string
-  updateTime?: string
-}
-
-export interface SuperAdminForm {
-  adminId?: number
-  userName: string
-  nickName: string
-  phone: string
-  email: string
-  password?: string
-  status: number
-  remark: string
-}
-
-export interface SuperAdminQueryParams extends PageRequest {
-  userName?: string
-  nickName?: string
-  phone?: string
-  status?: number | ''
-}
-
 export interface ManagedAccount {
   id?: number
   userName: string

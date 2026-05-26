@@ -26,7 +26,6 @@
         </el-card>
 
         <el-dialog v-model="dialogOpen" :title="title" width="500" @close="resetForm">
-            <!-- 监听 success 事件刷新列表，监听 close 事件关闭弹窗 -->
             <category-form v-if="dialogOpen" :category-id="categoryId" @success="getCategoryList"
                 @close="dialogOpen = false" />
         </el-dialog>
@@ -38,11 +37,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
 import { onMounted } from 'vue'
 import CategoryForm from '@/components/CategoryForm.vue'
-// 导入api接口
 import { listCategory } from '@/api/item/category'
-import { deleteCategoryApi } from '@/api/item/category' // 引入接口
+import { deleteCategoryApi } from '@/api/item/category'
 import type { Category } from '@/types/types'
-
 
 onMounted(() => {
     getCategoryList()
@@ -50,40 +47,33 @@ onMounted(() => {
 
 const categoryList = ref<Category[]>([])
 
-// 关闭弹窗时重置 ID，防止下次打开新增时还残留着修改的 ID
 function resetForm() {
     categoryId.value = 0
 }
 
-
-
-const dialogOpen = ref(false) // 对话框 v-model
-const title = ref("") // 对话框 v-bind
+const dialogOpen = ref(false)
+const title = ref("")
 
 const categoryId = ref(0)
 
-/** 获取类别列表 */
 function getCategoryList() {
     listCategory().then(res => {
         categoryList.value = res.data
     })
 }
 
-/** 新增按钮 */
 function handleAdd() {
-    categoryId.value = 0 // 确保是新增模式
+    categoryId.value = 0
     dialogOpen.value = true
     title.value = "新增类别"
 }
 
-/** 修改按钮 */
 function handleUpdate(row: Category) {
     categoryId.value = row.categoryId ?? 0
     dialogOpen.value = true
     title.value = "修改类别"
 }
 
-// 单个删除
 function handleDelete(row: Category) {
     ElMessageBox.confirm(
         `确定要删除类别 "${row.categoryName}" 吗？`,
@@ -94,7 +84,7 @@ function handleDelete(row: Category) {
             const res = await deleteCategoryApi(row.categoryId ?? 0)
             if (res.code === 200) {
                 ElMessage.success('删除成功')
-                getCategoryList() // 刷新列表
+                getCategoryList()
             } else {
                 ElMessage.error(res.message || '删除失败')
             }
@@ -102,7 +92,6 @@ function handleDelete(row: Category) {
         .catch(() => { })
 }
 
-/** 导出按钮 */
 function handleExport() {
     ElMessage({ type: 'info', message: '导出数据', })
 }

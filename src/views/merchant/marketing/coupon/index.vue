@@ -3,11 +3,11 @@
     <el-card class="page-card" shadow="never">
       <div class="page-header">
         <div>
-          <h2 class="page-title">{{ pageTitle }}</h2>
-          <p class="page-subtitle">{{ pageSubtitle }}</p>
+          <h2 class="page-title">营销管理</h2>
+          <p class="page-subtitle">创建并管理店铺优惠券，支持预热与库存控制。</p>
         </div>
         <div class="page-toolbar">
-          <el-tag effect="plain" type="info">当前范围：{{ scopeLabel }}</el-tag>
+          <el-tag effect="plain" type="info">当前范围：商家店铺券</el-tag>
           <el-button type="primary" icon="Plus" @click="handleAdd">新增优惠券</el-button>
           <el-button icon="Refresh" @click="fetchData">刷新</el-button>
         </div>
@@ -44,14 +44,13 @@
       </el-table>
     </el-card>
 
-    <!-- 新增弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" destroy-on-close>
+    <el-dialog v-model="dialogVisible" title="新增优惠券" width="520px" destroy-on-close>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="优惠券名称" prop="name">
           <el-input v-model="form.name" placeholder="例如：满100减10" />
         </el-form-item>
         <el-form-item label="适用范围">
-          <el-input :model-value="scopeLabel" disabled />
+          <el-input model-value="商家店铺券" disabled />
         </el-form-item>
         <el-form-item label="面额" prop="amount">
           <el-input-number v-model="form.amount" :min="1" :precision="2" />
@@ -86,46 +85,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, reactive, ref } from 'vue'
 import { getCouponPageApi, addCouponApi, preheatCouponApi } from '@/api/marketing/coupon'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh, Lightning } from '@element-plus/icons-vue'
 import type { Coupon, CouponForm } from '@/types/types'
-
-type CouponScope = 'MALL' | 'MERCHANT'
-
-type CouponFormModel = Omit<CouponForm, 'startTime' | 'endTime'> & {
-  timeRange: string[]
-}
-
-const route = useRoute()
-const couponScope = computed<CouponScope>(() => ((route.meta as { couponScope?: CouponScope }).couponScope ?? 'MALL'))
-const scopeLabel = computed(() => (couponScope.value === 'MERCHANT' ? '商家店铺券' : '全商城券'))
-const pageTitle = computed(() => (couponScope.value === 'MERCHANT' ? '营销管理' : '优惠券管理'))
-const pageSubtitle = computed(() =>
-  couponScope.value === 'MERCHANT'
-    ? '商家仅能创建与管理自己店铺可用的优惠券。'
-    : '超级管理员创建全商城通用优惠券，所有店铺均可使用。',
-)
-const dialogTitle = computed(() => `新增${scopeLabel.value}`)
-
-const getScopeTag = (scopeType?: CouponScope) => {
-  return scopeType === 'MERCHANT' ? '商家店铺券' : '全商城券'
-}
 
 const loading = ref(false)
 const tableData = ref<Coupon[]>([])
 const dialogVisible = ref(false)
 const formRef = ref()
 
-const form = reactive<CouponFormModel>({
+const form = reactive<Omit<CouponForm, 'startTime' | 'endTime'> & { timeRange: string[] }>({
   name: '',
   amount: 10,
   minPoint: 0,
   count: 100,
   perLimit: 1,
-  scopeType: couponScope.value,
+  scopeType: 'MERCHANT',
   timeRange: [] as string[],
 })
 
@@ -136,36 +113,31 @@ const rules = {
   timeRange: [{ required: true, message: '请选择时间范围', trigger: 'change' }]
 }
 
-// 查询列表
 const fetchData = async () => {
   loading.value = true
-  const res = await getCouponPageApi({ scopeType: couponScope.value })
+  const res = await getCouponPageApi({ scopeType: 'MERCHANT' })
   if (res.code === 200) {
     tableData.value = res.data.records ?? res.data.list ?? []
   }
   loading.value = false
 }
 
-// 打开新增
 const handleAdd = () => {
-  form.scopeType = couponScope.value
+  form.scopeType = 'MERCHANT'
   dialogVisible.value = true
-  // 重置表单逻辑...
 }
 
-// 提交新增
 const submitForm = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      // 拆分时间
       const postData: CouponForm = {
         name: form.name,
         amount: form.amount,
         minPoint: form.minPoint,
         count: form.count,
         perLimit: form.perLimit,
-        scopeType: couponScope.value,
+        scopeType: 'MERCHANT',
         startTime: form.timeRange?.[0] || '',
         endTime: form.timeRange?.[1] || ''
       }
@@ -179,7 +151,6 @@ const submitForm = async () => {
   })
 }
 
-// 预热操作
 const handlePreheat = (row: Coupon) => {
   if (!row.id) return
   const couponId = row.id
@@ -193,6 +164,10 @@ const handlePreheat = (row: Coupon) => {
       ElMessage.success('预热成功！可以开始秒杀了')
     }
   })
+}
+
+const getScopeTag = (scopeType?: 'MALL' | 'MERCHANT') => {
+  return scopeType === 'MERCHANT' ? '商家店铺券' : '全商城券'
 }
 
 const formatTime = (time: string) => {

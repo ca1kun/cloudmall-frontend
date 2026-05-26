@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
-export type AppRole = 'ADMIN' | 'MERCHANT' | 'CUSTOMER' | 'SUPER_ADMIN'
+export type AppRole = 'MERCHANT' | 'CUSTOMER'
 
 export interface RoleRouteMeta {
   roles?: string[]
@@ -13,16 +13,12 @@ export interface RoleRouteRecord {
 }
 
 const ROLE_HOME_PATH: Record<AppRole, string> = {
-  ADMIN: '/home',
   MERCHANT: '/merchant/home',
-  SUPER_ADMIN: '/home',
   CUSTOMER: '/mall/home',
 }
 
 const ROLE_PROFILE_PATH: Record<AppRole, string> = {
-  ADMIN: '/profile',
   MERCHANT: '/merchant/profile',
-  SUPER_ADMIN: '/profile',
   CUSTOMER: '/mall/profile',
 }
 
@@ -50,11 +46,7 @@ export function canAccessPath(role?: string | null, path = '') {
     return path === '/login' || path.startsWith('/mall')
   }
 
-  if (normalized === 'MERCHANT') {
-    return path === '/login' || path.startsWith('/merchant')
-  }
-
-  return path === '/login' || (!path.startsWith('/mall') && !path.startsWith('/merchant'))
+  return path === '/login' || path.startsWith('/merchant')
 }
 
 export function canAccessRoute(role?: string | null, route?: RoleRouteRecord) {

@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-// 引入你原来的 admin 路由数据 (假设你把它放在同目录的 router.ts 或 routerData.ts 中)
-// 注意：请确保 routerData 里的 component 路径也是对的
-import { adminRouters } from './adminRouter'
 import { merchantRouters } from './merchantRouter'
 import { mallRoutes } from './mallRoutes'
 import { canAccessCurrentRoute, getRoleHomePath, normalizeRole } from '@/utils/role'
@@ -19,18 +16,9 @@ const router = createRouter({
       component: () => import('@/views/login/index.vue'),
     },
 
-    // -----------------------------------------------------------
-    // 1. 后台管理入口 (ADMIN)
-    // -----------------------------------------------------------
     {
       path: '/',
-      // 👇【修改这里】原来的路径是 @/layout/index.vue，现在要改成 admin 目录下的
-      component: () => import('@/layout/admin/index.vue'),
-      redirect: '/home',
-      meta: { requiresAuth: true, role: 'ADMIN' },
-      children: [
-        ...adminRouters
-      ]
+      redirect: '/mall/home',
     },
 
     {
@@ -70,6 +58,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const role = normalizeRole(localStorage.getItem('role'))
+
+  if (token && !role) {
+    localStorage.removeItem('token')
+    localStorage.removeItem('role')
+    if (to.path !== '/login') {
+      return next('/login')
+    }
+  }
 
   // 1. 如果没有 Token，且去的不是登录页 -> 强制去登录
   if (!token && to.path !== '/login') {

@@ -22,7 +22,6 @@
                     </div>
 
                     <template #dropdown>
-                        <!-- 👇 关键修改：设置 class 并去掉 router-link -->
                         <el-dropdown-menu class="user-dropdown">
                             <el-dropdown-item icon="User" @click="toProfile">
                                 个人中心
@@ -42,16 +41,15 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { useRouter } from 'vue-router' // 引入 router
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { UserFilled, CaretBottom, User, SwitchButton } from '@element-plus/icons-vue' // 引入更多图标
+import { UserFilled, CaretBottom, User, SwitchButton } from '@element-plus/icons-vue'
 import { getRoleHomePath, getRoleProfilePath } from '@/utils/role'
 
 const userStore = useUserStore()
 const router = useRouter()
-const layoutTitle = computed(() => (userStore.role === 'MERCHANT' ? '商家工作台' : '后台管理'))
+const layoutTitle = computed(() => '商家工作台')
 
-// 跳转逻辑
 const toProfile = () => {
     router.push(getRoleProfilePath(userStore.role))
 }
@@ -65,7 +63,7 @@ const handleLogout = () => {
         .then(async () => {
             await userStore.logout()
             ElMessage.success('退出成功')
-            router.replace('/login') // 强制跳转
+            router.replace('/login')
         })
         .catch(() => { })
 }
@@ -137,19 +135,13 @@ const handleLogout = () => {
 </style>
 
 <style>
-/* 👇 全局样式修改下拉框宽度 👇 */
-/* 注意：el-dropdown-menu 是挂载在 body 上的，scoped 样式对它无效，必须写在全局 style 里 */
 .user-dropdown {
     min-width: 140px !important;
-    /* 固定宽度，不再被文字撑得太宽 */
     text-align: center;
-    /* 如果你想居中 */
 }
 
-/* 如果想让里面的字靠左对齐 (更推荐) */
 .user-dropdown .el-dropdown-menu__item {
     justify-content: flex-start;
-    /* 图标和文字靠左 */
     padding: 10px 20px;
 }
 </style>

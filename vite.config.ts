@@ -25,7 +25,7 @@ export default defineConfig({
     proxy: {
       // 🌟 统一代理：所有以 /api 开头的请求，全部发给网关 (8080)
       '/api': {
-        target: 'http://8.163.42.228:8080', // 这里改成你的后端网关地址
+        target: 'http://8.138.192.28:8080', // 这里改成你的后端网关地址
         changeOrigin: true,
       }
     }

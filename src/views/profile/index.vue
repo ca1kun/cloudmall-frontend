@@ -80,9 +80,7 @@ const userInfo = ref<any>({})
 
 const roleLabel = computed(() => {
     switch (userInfo.value?.role) {
-        case 'ADMIN': return '管理员'
         case 'MERCHANT': return '商家'
-        case 'SUPER_ADMIN': return '超级管理员'
         case 'CUSTOMER': return '顾客'
         default: return '用户'
     }

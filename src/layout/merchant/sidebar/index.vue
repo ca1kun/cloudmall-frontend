@@ -38,7 +38,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { adminRouters } from '@/router/adminRouter'
 import { merchantRouters } from '@/router/merchantRouter'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
@@ -47,8 +46,7 @@ import { filterRoutesByRole } from '@/utils/role'
 const route = useRoute()
 const userStore = useUserStore()
 const { role } = storeToRefs(userStore)
-const routerSource = computed(() => (role.value === 'MERCHANT' ? merchantRouters : adminRouters))
-const routerList = computed(() => filterRoutesByRole(routerSource.value, role.value))
+const routerList = computed(() => filterRoutesByRole(merchantRouters, role.value))
 const activeMenu = computed(() => route.path)
 </script>
 

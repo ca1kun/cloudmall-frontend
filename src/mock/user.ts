@@ -29,19 +29,19 @@ function createStaticUserList(): UserInfo[] {
   return [
     {
       avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-      userName: 'admin',
+      userName: 'merchant',
       password: '123',
-      desc: '系统管理员',
-      roles: ['admin'],
-      token: 'admin_token',
+      desc: '商家用户',
+      roles: ['MERCHANT'],
+      token: 'merchant_token',
     },
     {
       avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-      userName: 'user',
+      userName: 'customer',
       password: '123456',
-      desc: '普通用户',
-      roles: ['common'],
-      token: 'user_token',
+      desc: '顾客用户',
+      roles: ['CUSTOMER'],
+      token: 'customer_token',
     },
   ]
 }

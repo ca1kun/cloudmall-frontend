@@ -27,15 +27,28 @@ export const useUserStore = defineStore('user', () => {
       const data = res.data
 
       // 赋值到 Pinia
+      const normalizedRole = normalizeRole(data.role)
+      if (!normalizedRole) {
+        token.value = ''
+        role.value = ''
+        username.value = ''
+        avatar.value = ''
+        localStorage.removeItem('token')
+        localStorage.removeItem('role')
+        localStorage.removeItem('username')
+        localStorage.removeItem('avatar')
+        throw new Error('登录角色无效')
+      }
+
       token.value = data.token
-      role.value = normalizeRole(data.role) || data.role
+      role.value = normalizedRole
       username.value = data.username
        avatar.value = data.avatar || '' // 防止 null
       localStorage.setItem('avatar', data.avatar || '')
 
       // 持久化存储
       localStorage.setItem('token', data.token)
-      localStorage.setItem('role', normalizeRole(data.role) || data.role)
+      localStorage.setItem('role', normalizedRole)
       localStorage.setItem('username', data.username)
 
       return data
