@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
-export type AppRole = 'MERCHANT' | 'CUSTOMER'
+export type AppRole = 'MERCHANT' | 'CUSTOMER' | 'ADMIN'
 
 export interface RoleRouteMeta {
   roles?: string[]
@@ -15,11 +15,13 @@ export interface RoleRouteRecord {
 const ROLE_HOME_PATH: Record<AppRole, string> = {
   MERCHANT: '/merchant/home',
   CUSTOMER: '/mall/home',
+  ADMIN: '/merchant/home',
 }
 
 const ROLE_PROFILE_PATH: Record<AppRole, string> = {
   MERCHANT: '/merchant/profile',
   CUSTOMER: '/mall/profile',
+  ADMIN: '/merchant/profile',
 }
 
 export function normalizeRole(role?: string | null): AppRole | '' {

@@ -40,9 +40,9 @@
     </div>
 
     <!-- 3. 商品列表展示区 (无限滚动) -->
-    <div 
-      class="product-container" 
-      v-infinite-scroll="loadMore" 
+    <div
+      class="product-container"
+      v-infinite-scroll="loadMore"
       :infinite-scroll-disabled="disabled"
       :infinite-scroll-distance="30"
     >
@@ -51,9 +51,9 @@
       </div>
 
       <el-row :gutter="20">
-        <el-col 
-          v-for="item in productList" 
-          :key="item.productId" 
+        <el-col
+          v-for="item in productList"
+          :key="item.productId"
           :xs="12" :sm="8" :md="6" :lg="6" :xl="4"
           class="col-mb"
         >
@@ -216,7 +216,7 @@ onMounted(() => {
 
 <style scoped>
 .mall-home {
-  background-color: #f5f7fa;
+  background-color: var(--app-bg);
   min-height: 100vh;
 }
 
@@ -246,11 +246,11 @@ onMounted(() => {
 
 /* 2. 筛选栏 - 吸顶效果 */
 .sticky-filter-wrapper {
-  background: #fff;
+  background: var(--app-surface);
   position: sticky;
   top: 64px; /* 假设你的 navbar 高度是 64px */
   z-index: 999;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: var(--app-shadow-sm);
   margin-bottom: 30px;
 }
 .filter-bar {
@@ -263,9 +263,33 @@ onMounted(() => {
 }
 .filter-left { display: flex; align-items: center; }
 .filter-label {
-  font-size: 15px; font-weight: 700; color: #333; margin-right: 20px;
+  font-size: 15px; font-weight: 700; color: var(--app-text); margin-right: 20px;
 }
 .custom-cascader { width: 300px; }
+
+.custom-cascader :deep(.el-input__wrapper) {
+  background: var(--app-surface);
+  box-shadow: 0 0 0 1px var(--app-border) inset;
+}
+
+.custom-cascader :deep(.el-input__inner) {
+  color: var(--app-text);
+}
+
+.custom-cascader :deep(.el-input__inner::placeholder) {
+  color: var(--app-text-muted);
+}
+
+.custom-cascader :deep(.el-input__suffix-inner),
+.custom-cascader :deep(.el-icon) {
+  color: var(--app-text-muted);
+}
+
+.total-tag {
+  border-color: var(--app-border);
+  color: var(--app-text);
+  background: var(--app-surface-soft);
+}
 
 /* 3. 商品网格 */
 .product-container {
@@ -275,54 +299,54 @@ onMounted(() => {
 }
 .list-title-box {
   margin-bottom: 25px;
-  border-left: 5px solid #409EFF;
+  border-left: 5px solid var(--app-primary);
   padding-left: 15px;
 }
-.section-title { font-size: 22px; font-weight: 800; color: #2c3e50; margin: 0; }
+.section-title { font-size: 22px; font-weight: 800; color: var(--app-text); margin: 0; }
 
 .product-card {
   border: none;
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: #fff;
+  background: var(--app-surface);
 }
 .product-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+  box-shadow: var(--app-shadow-md) !important;
 }
 
 .image-wrapper {
-  width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #fcfcfc;
+  width: 100%; aspect-ratio: 1/1; overflow: hidden; background: var(--app-surface-soft);
 }
 .product-image { width: 100%; height: 100%; transition: transform 0.5s; }
 .product-card:hover .product-image { transform: scale(1.08); }
 
 .product-info { padding: 18px; }
 .product-name {
-  font-size: 16px; font-weight: 700; color: #303133; height: 22px;
+  font-size: 16px; font-weight: 700; color: var(--app-text); height: 22px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 8px;
 }
 .product-desc {
-  font-size: 13px; color: #909399; height: 18px;
+  font-size: 13px; color: var(--app-text-muted); height: 18px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 15px;
 }
 
 .product-bottom { display: flex; justify-content: space-between; align-items: center; }
-.price-box { color: #ff4d4f; }
+.price-box { color: var(--app-danger); }
 .currency { font-size: 14px; font-weight: bold; }
 .price-val { font-size: 24px; font-weight: 800; font-family: 'Helvetica Neue'; }
 
-.add-btn { box-shadow: 0 4px 10px rgba(64,158,255,0.3); }
+.add-btn { box-shadow: var(--app-shadow-sm); }
 
 .col-mb { margin-bottom: 25px; }
 
 /* 4. 加载状态 */
 .load-status { padding: 40px 0; text-align: center; }
-.loading-box { color: #409EFF; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.no-more-text { color: #909399; font-size: 14px; opacity: 0.6; }
+.loading-box { color: var(--app-primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.no-more-text { color: var(--app-text-muted); font-size: 14px; opacity: 0.6; }
 
 .image-slot {
   display: flex; justify-content: center; align-items: center;
-  width: 100%; height: 100%; background: #f5f7fa; color: #909399;
+  width: 100%; height: 100%; background: var(--app-surface-muted); color: var(--app-text-muted);
 }
 </style>

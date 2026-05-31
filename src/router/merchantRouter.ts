@@ -6,7 +6,7 @@ export const merchantRouters = [
     meta: {
       icon: 'HomeFilled',
       title: '商家首页',
-      roles: ['MERCHANT'],
+      roles: ['MERCHANT', 'ADMIN'],
     },
   },
   {
@@ -16,7 +16,7 @@ export const merchantRouters = [
     meta: {
       icon: 'User',
       title: '个人中心',
-      roles: ['MERCHANT'],
+      roles: ['MERCHANT', 'ADMIN'],
     },
   },
   {
@@ -26,7 +26,7 @@ export const merchantRouters = [
     meta: {
       icon: 'Grid',
       title: '商品管理',
-      roles: ['MERCHANT'],
+      roles: ['MERCHANT', 'ADMIN'],
     },
     children: [
       {
@@ -36,7 +36,7 @@ export const merchantRouters = [
         meta: {
           icon: 'Goods',
           title: '商品',
-          roles: ['MERCHANT'],
+          roles: ['MERCHANT', 'ADMIN'],
         },
       },
       {
@@ -46,7 +46,7 @@ export const merchantRouters = [
         meta: {
           icon: 'Folder',
           title: '类别',
-          roles: ['MERCHANT'],
+          roles: ['MERCHANT', 'ADMIN'],
         },
       },
     ],
@@ -58,7 +58,7 @@ export const merchantRouters = [
     meta: {
       icon: 'Shop',
       title: '订单管理',
-      roles: ['MERCHANT'],
+      roles: ['MERCHANT', 'ADMIN'],
     },
     children: [
       {
@@ -68,7 +68,7 @@ export const merchantRouters = [
         meta: {
           icon: 'Sell',
           title: '订单列表',
-          roles: ['MERCHANT'],
+          roles: ['MERCHANT', 'ADMIN'],
         },
       },
       {
@@ -78,7 +78,7 @@ export const merchantRouters = [
         meta: {
           icon: 'Wallet',
           title: '收款',
-          roles: ['MERCHANT'],
+          roles: ['MERCHANT', 'ADMIN'],
         },
       },
     ],
@@ -90,7 +90,7 @@ export const merchantRouters = [
     meta: {
       icon: 'Present',
       title: '营销管理',
-      roles: ['MERCHANT'],
+      roles: ['MERCHANT', 'ADMIN'],
     },
     children: [
       {
@@ -100,7 +100,7 @@ export const merchantRouters = [
         meta: {
           icon: 'Ticket',
           title: '优惠券管理',
-          roles: ['MERCHANT'],
+          roles: ['MERCHANT', 'ADMIN'],
           couponScope: 'MERCHANT',
         },
       },

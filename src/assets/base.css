@@ -63,6 +63,28 @@
   --app-login-orb-1: rgba(59, 130, 246, 0.22);
   --app-login-orb-2: rgba(56, 189, 248, 0.18);
   --app-login-sheen: rgba(148, 163, 184, 0.35);
+  --el-color-primary: var(--app-primary);
+  --el-color-primary-dark-2: #3b82f6;
+  --el-color-primary-light-3: #7bb7ff;
+  --el-color-primary-light-5: #9cc7ff;
+  --el-color-primary-light-7: #bcd8ff;
+  --el-color-primary-light-9: #d8e8ff;
+  --el-bg-color: var(--app-surface);
+  --el-bg-color-overlay: #111c33;
+  --el-fill-color: #0f1f38;
+  --el-fill-color-light: #16233f;
+  --el-fill-color-lighter: #1b2947;
+  --el-fill-color-dark: #0b152b;
+  --el-fill-color-darker: #081125;
+  --el-border-color: var(--app-border);
+  --el-border-color-light: #2f415d;
+  --el-text-color-primary: var(--app-text);
+  --el-text-color-regular: var(--app-text);
+  --el-text-color-secondary: var(--app-text-muted);
+  --el-text-color-placeholder: #7c8aa5;
+  --el-box-shadow: var(--app-shadow-sm);
+  --el-box-shadow-light: var(--app-shadow-md);
+  --el-mask-color: rgba(2, 6, 23, 0.7);
 }
 
 * ,

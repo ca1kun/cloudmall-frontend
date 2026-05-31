@@ -2,7 +2,7 @@
     <div class="pay-container">
         <el-card class="box-card">
             <div class="success-icon">
-                <el-icon color="#67C23A" size="60">
+                <el-icon :color="'var(--app-success)'" size="60">
                     <CircleCheckFilled />
                 </el-icon>
             </div>
@@ -55,18 +55,18 @@ const handleAlipay = async () => {
     try {
         // 1. 调用接口，强制转为 any 类型，不再受 TS 类型报错干扰
         const res = await alipayApi(Number(orderId.value)) as any
-        
-        console.log('支付接口返回:', res) 
+
+        console.log('支付接口返回:', res)
 
         // 2. 直接取 code，不要加 .data
         if (res.code === 200) {
             const formHtml = res.data // 这里直接取 data，就是那个 HTML 字符串
-            
+
             // 3. 创建容器并提交
             const div = document.createElement('div')
             div.innerHTML = formHtml
             document.body.appendChild(div)
-            
+
             // 4. 提交表单 (兼容性写法)
             const form = div.querySelector('form')
             if (form) {
@@ -109,14 +109,14 @@ const handleAlipay = async () => {
 }
 
 .tip {
-    color: #909399;
+    color: var(--app-text-muted);
     font-size: 14px;
     margin-bottom: 30px;
 }
 
 .info-list {
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid var(--app-border);
+    border-bottom: 1px solid var(--app-border);
     padding: 20px 0;
     margin-bottom: 30px;
 }
@@ -129,7 +129,7 @@ const handleAlipay = async () => {
 }
 
 .price {
-    color: #f56c6c;
+    color: var(--app-danger);
     font-size: 20px;
     font-weight: bold;
 }

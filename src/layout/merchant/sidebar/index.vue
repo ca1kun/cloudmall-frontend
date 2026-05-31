@@ -62,7 +62,7 @@ const activeMenu = computed(() => route.path)
     gap: 12px;
     padding: 10px 10px 14px;
     margin: 0 4px 12px;
-    border-bottom: 1px solid #edf1f7;
+    border-bottom: 1px solid var(--app-border);
 }
 
 .brand-logo {
@@ -75,7 +75,7 @@ const activeMenu = computed(() => route.path)
 }
 
 .brand-title {
-    color: #1f2d3d;
+    color: var(--app-text);
     font-size: 16px;
     line-height: 1.2;
     font-weight: 600;
@@ -84,7 +84,7 @@ const activeMenu = computed(() => route.path)
 
 .brand-subtitle {
     margin-top: 3px;
-    color: #8a97a8;
+    color: var(--app-text-muted);
     font-size: 12px;
     letter-spacing: 0.4px;
 }
@@ -100,18 +100,18 @@ const activeMenu = computed(() => route.path)
     line-height: 42px;
     margin: 6px 6px;
     border-radius: 10px;
-    color: #44576d;
+    color: var(--app-text-muted);
 }
 
 :deep(.el-menu-item:hover),
 :deep(.el-sub-menu__title:hover) {
-    color: #1d4ed8;
-    background: #eef4ff;
+    color: var(--app-primary);
+    background: var(--app-surface-muted);
 }
 
 :deep(.el-menu-item.is-active) {
-    color: #1d4ed8;
-    background: linear-gradient(90deg, #eaf2ff 0%, #f5f9ff 100%);
+    color: var(--app-primary);
+    background: var(--app-primary-soft);
     font-weight: 600;
 }
 

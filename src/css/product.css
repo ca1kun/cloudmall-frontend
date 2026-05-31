@@ -62,7 +62,7 @@
 .el-descriptions__label {
   font-weight: 600;
   color: var(--app-text);
-  background: #f8fafc !important;
+  background: var(--app-surface-soft) !important;
 }
 
 .el-descriptions__content {
@@ -72,7 +72,7 @@
 .el-drawer__header {
   padding: 20px;
   margin: 0;
-  background: #ffffff;
+  background: var(--app-surface);
   border-bottom: 1px solid var(--app-border);
 }
 
@@ -122,14 +122,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--app-surface-muted);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--app-border-strong);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--app-border);
 }

@@ -1,21 +1,23 @@
 <template>
     <div class="cart-container">
-        <el-card>
+        <el-card class="cart-card" shadow="never">
             <template #header>
                 <div class="card-header">
-                    <span>🛒 我的购物车</span>
-                    <el-button type="text" @click="fetchCart">刷新</el-button>
+                    <div class="header-title">
+                        <span class="title-icon">🛒</span>
+                        <span>我的购物车</span>
+                    </div>
+                    <el-button class="refresh-btn" type="text" @click="fetchCart">刷新</el-button>
                 </div>
             </template>
 
             <!-- 购物车列表 -->
-            <el-table :data="cartList" style="width: 100%" v-loading="loading">
+            <el-table :data="cartList" class="cart-table" style="width: 100%" v-loading="loading">
                 <el-table-column label="商品信息" width="400">
                     <template #default="{ row }">
-                        <div style="display: flex; align-items: center;">
-                            <el-image :src="row.productPic" style="width: 80px; height: 80px; border-radius: 4px;"
-                                fit="cover" />
-                            <span style="margin-left: 15px; font-weight: bold;">{{ row.productName }}</span>
+                        <div class="cart-item">
+                            <el-image :src="row.productPic" class="cart-item-image" fit="cover" />
+                            <span class="cart-item-name">{{ row.productName }}</span>
                         </div>
                     </template>
                 </el-table-column>
@@ -23,13 +25,12 @@
                 <el-table-column label="单价" width="180">
                     <template #default="{ row }">
                         <!-- 1. 显示最新价格 -->
-                        <div style="color: #303133; font-weight: bold;">
+                        <div class="price-now">
                             ¥ {{ row.currentPrice }}
                         </div>
 
                         <!-- 2. 降价提醒 -->
-                        <div v-if="row.currentPrice < row.price"
-                            style="font-size: 12px; color: #67C23A; margin-top: 4px;">
+                        <div v-if="row.currentPrice < row.price" class="price-drop">
                             <el-icon>
                                 <CaretBottom />
                             </el-icon>
@@ -37,8 +38,7 @@
                         </div>
 
                         <!-- 3. 涨价提醒 (可选) -->
-                        <div v-else-if="row.currentPrice > row.price"
-                            style="font-size: 12px; color: #F56C6C; margin-top: 4px;">
+                        <div v-else-if="row.currentPrice > row.price" class="price-rise">
                             <el-icon>
                                 <CaretTop />
                             </el-icon>
@@ -58,7 +58,7 @@
 
                 <el-table-column label="小计">
                     <template #default="{ row }">
-                        <span style="font-weight: bold;">¥ {{ (row.price * row.quantity).toFixed(2) }}</span>
+                        <span class="subtotal">¥ {{ (row.price * row.quantity).toFixed(2) }}</span>
                     </template>
                 </el-table-column>
 
@@ -74,7 +74,7 @@
                 <div class="total">
                     总计：<span class="price">¥ {{ totalPrice }}</span>
                 </div>
-                <el-button type="primary" size="large" @click="goToCheckout" :disabled="cartList.length === 0">
+                <el-button class="checkout-btn" type="primary" size="large" @click="goToCheckout" :disabled="cartList.length === 0">
                     去结算 ({{ cartList.length }})
                 </el-button>
             </div>
@@ -170,23 +170,174 @@ onMounted(() => {
     margin: 0 auto;
 }
 
+.cart-card {
+    border-radius: 20px;
+    border: 1px solid var(--app-border);
+    background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
+    box-shadow: var(--app-shadow-md);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--app-text);
+}
+
+.title-icon {
+    font-size: 18px;
+}
+
+.refresh-btn {
+    color: var(--app-text-muted);
+}
+
+.refresh-btn:hover {
+    color: var(--app-primary);
+}
+
+.cart-table :deep(.el-table__header-wrapper th) {
+    font-weight: 600;
+    background: var(--app-surface-soft);
+    color: var(--app-text);
+    border-bottom-color: var(--app-border);
+}
+
+.cart-table :deep(.el-table__body tr:hover > td) {
+    background: var(--app-surface-muted);
+}
+
+.cart-table :deep(.el-table__inner-wrapper) {
+    background: var(--app-surface);
+}
+
+.cart-table :deep(.el-table__body-wrapper),
+.cart-table :deep(.el-table__header-wrapper) {
+    background: var(--app-surface);
+}
+
+.cart-table :deep(.el-table__empty-block) {
+    background: var(--app-surface);
+}
+
+.cart-table :deep(.el-table__empty-text) {
+    color: var(--app-text-muted);
+}
+
+.cart-table :deep(.el-input-number) {
+    background: var(--app-surface);
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px var(--app-border) inset;
+}
+
+.cart-table :deep(.el-input-number__decrease),
+.cart-table :deep(.el-input-number__increase) {
+    background: var(--app-surface-muted);
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+
+.cart-table :deep(.el-input-number__decrease:hover),
+.cart-table :deep(.el-input-number__increase:hover) {
+    background: var(--app-surface-soft);
+    color: var(--app-primary);
+}
+
+.cart-table :deep(.el-input__wrapper) {
+    background: transparent;
+    box-shadow: none;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface-muted);
+}
+
+.cart-item-name {
+    margin-left: 15px;
+    font-weight: 700;
+    color: var(--app-text);
+}
+
+.price-now {
+    color: var(--app-text);
+    font-weight: 700;
+}
+
+.price-drop {
+    font-size: 12px;
+    color: var(--app-success);
+    margin-top: 4px;
+}
+
+.price-rise {
+    font-size: 12px;
+    color: var(--app-danger);
+    margin-top: 4px;
+}
+
+.subtotal {
+    font-weight: 700;
+    color: var(--app-text);
+}
+
 .cart-footer {
     margin-top: 20px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--app-border);
     padding-top: 20px;
+    gap: 16px;
 }
 
 .total {
     margin-right: 20px;
     font-size: 16px;
+    color: var(--app-text-muted);
 }
 
 .price {
-    color: #f56c6c;
+    color: var(--app-danger);
     font-size: 24px;
     font-weight: bold;
+}
+
+.checkout-btn {
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.25);
+    border-radius: 12px;
+    padding: 10px 20px;
+}
+
+@media (max-width: 768px) {
+    .cart-container {
+        padding: 16px;
+    }
+
+    .cart-item-image {
+        width: 64px;
+        height: 64px;
+    }
+
+    .cart-footer {
+        flex-direction: column;
+        align-items: flex-end;
+    }
 }
 </style>

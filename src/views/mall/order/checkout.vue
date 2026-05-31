@@ -40,7 +40,7 @@
             :disabled="!checkCouponAvailable(item)" />
         </el-select>
 
-        <div v-if="orderForm.couponId" style="margin-top: 10px; color: #f56c6c; font-size: 14px;">
+        <div v-if="orderForm.couponId" class="coupon-tip">
           已抵扣: ¥ {{ currentCouponAmount }}
         </div>
       </div>
@@ -57,9 +57,8 @@
           <span class="label">商品总额:</span>
           <span class="value">¥ {{ goodsTotalPrice.toFixed(2) }}</span>
 
-          <span class="label" style="margin-left: 20px;" v-if="currentCouponAmount > 0">优惠:</span>
-          <span class="value" style="color: #67C23A;" v-if="currentCouponAmount > 0">- ¥ {{ currentCouponAmount
-            }}</span>
+          <span class="label discount-label" v-if="currentCouponAmount > 0">优惠:</span>
+          <span class="value discount-value" v-if="currentCouponAmount > 0">- ¥ {{ currentCouponAmount }}</span>
 
           <span class="label" style="margin-left: 20px;">实付金额:</span>
           <span class="real-price">¥ {{ finalPrice }}</span>
@@ -207,18 +206,33 @@ onMounted(() => {
 h3 {
   margin-bottom: 15px;
   font-size: 16px;
-  color: #333;
+    color: var(--app-text);
 }
 
 .footer-bar {
   text-align: right;
   margin-top: 40px;
-  border-top: 1px solid #eee;
+    border-top: 1px solid var(--app-border);
   padding-top: 20px;
 }
 
+.coupon-tip {
+  margin-top: 10px;
+  color: var(--app-danger);
+  font-size: 14px;
+}
+
+.discount-label {
+  margin-left: 20px;
+  color: var(--app-text-muted);
+}
+
+.discount-value {
+  color: var(--app-success);
+}
+
 .real-price {
-  color: #f56c6c;
+    color: var(--app-danger);
   font-size: 28px;
   font-weight: bold;
   margin-left: 10px;

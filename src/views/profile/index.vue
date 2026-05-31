@@ -197,7 +197,7 @@ onMounted(() => {
 .profile-panel {
     border: 1px solid var(--app-border);
     border-radius: 18px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
     box-shadow: var(--app-shadow-sm);
 }
 

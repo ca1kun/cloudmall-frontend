@@ -57,7 +57,7 @@
         </el-form-item>
         <el-form-item label="使用门槛" prop="minPoint">
           <el-input-number v-model="form.minPoint" :min="0" :precision="2" />
-          <span style="margin-left: 10px; font-size: 12px; color: #999;">0表示无门槛</span>
+          <span class="form-tip">0表示无门槛</span>
         </el-form-item>
         <el-form-item label="发行数量" prop="count">
           <el-input-number v-model="form.count" :min="1" :step="10" />
@@ -191,5 +191,11 @@ onMounted(() => {
 
 .coupon-table {
   margin-top: 2px;
+}
+
+.form-tip {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--app-text-muted);
 }
 </style>

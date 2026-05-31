@@ -1,15 +1,15 @@
 <template>
   <div class="coupon-container">
-    <el-card>
-      <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+    <el-card class="coupon-shell" shadow="never">
+      <el-tabs class="coupon-tabs" v-model="activeTab" @tab-click="handleTabClick">
 
         <!-- Tab 1: 领券中心 -->
         <el-tab-pane label="领券中心" name="center">
           <div class="tip-bar">
-            <el-alert title="抢到的优惠券可在结算页使用哦~" type="success" :closable="false" show-icon />
+            <el-alert class="coupon-alert" title="抢到的优惠券可在结算页使用哦~" type="success" :closable="false" show-icon />
           </div>
 
-          <el-row :gutter="20" style="margin-top: 20px;">
+          <el-row :gutter="20" class="coupon-grid">
             <el-col :span="6" :xs="24" :sm="12" :md="8" :lg="6" v-for="item in list" :key="item.id">
               <div class="coupon-card" :class="{ 'disabled': isReceived(getCouponId(item)) || item.count <= 0 }">
                 <div class="left-part">
@@ -31,12 +31,12 @@
               </div>
             </el-col>
           </el-row>
-          <el-empty v-if="list.length === 0" description="暂无优惠券活动" />
+          <el-empty v-if="list.length === 0" class="coupon-empty" description="暂无优惠券活动" />
         </el-tab-pane>
 
         <!-- Tab 2: 我的优惠券 -->
         <el-tab-pane label="我的优惠券" name="mine">
-          <el-row :gutter="20" style="margin-top: 20px;">
+          <el-row :gutter="20" class="coupon-grid">
             <el-col :span="6" :xs="24" :sm="12" :md="8" :lg="6" v-for="item in myList" :key="item.id">
               <div class="coupon-card" :class="{ 'used': item.useStatus === 1 }">
                 <div class="left-part">
@@ -60,7 +60,7 @@
               </div>
             </el-col>
           </el-row>
-          <el-empty v-if="myList.length === 0" description="您还没有领取优惠券" />
+          <el-empty v-if="myList.length === 0" class="coupon-empty" description="您还没有领取优惠券" />
         </el-tab-pane>
 
       </el-tabs>
@@ -189,11 +189,62 @@ onMounted(() => {
   margin: 0 auto;
 }
 
+.coupon-shell {
+  border-radius: 20px;
+  border: 1px solid var(--app-border);
+  background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
+  box-shadow: var(--app-shadow-md);
+}
+
+.coupon-tabs :deep(.el-tabs__nav-wrap::after) {
+  background-color: var(--app-border);
+}
+
+.coupon-tabs :deep(.el-tabs__item) {
+  color: var(--app-text-muted);
+  font-weight: 600;
+}
+
+.coupon-tabs :deep(.el-tabs__item.is-active) {
+  color: var(--app-primary);
+}
+
+.coupon-tabs :deep(.el-tabs__active-bar) {
+  background-color: var(--app-primary);
+}
+
+.coupon-alert :deep(.el-alert__title),
+.coupon-alert :deep(.el-alert__description) {
+  color: var(--app-text);
+}
+
+.coupon-alert :deep(.el-alert__icon) {
+  color: var(--app-success);
+}
+
+.coupon-alert :deep(.el-alert__content) {
+  background: transparent;
+}
+
+:deep(.coupon-alert) {
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  box-shadow: none;
+}
+
+.coupon-grid {
+  margin-top: 20px;
+}
+
+.coupon-empty :deep(.el-empty__description) {
+  color: var(--app-text-muted);
+}
+
 /* 券卡片样式 - 模仿京东/淘宝风格 */
 .coupon-card {
-  background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
-  border: 1px solid #ffdede;
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--app-surface-soft) 0%, var(--app-surface) 100%);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
   display: flex;
   margin-bottom: 20px;
   position: relative;
@@ -203,19 +254,19 @@ onMounted(() => {
 }
 
 .coupon-card:hover {
-  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.1);
+  box-shadow: var(--app-shadow-md);
   transform: translateY(-2px);
 }
 
 .left-part {
   width: 90px;
-  background: linear-gradient(to bottom, #ff6b6b, #ee5253);
+  background: linear-gradient(180deg, #fb7185, #ef4444);
   color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-right: 1px dashed #fff;
+  border-right: 1px dashed rgba(255, 255, 255, 0.7);
 }
 
 .amount {
@@ -235,7 +286,7 @@ onMounted(() => {
 
 .right-part {
   flex: 1;
-  padding: 10px 15px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -244,7 +295,7 @@ onMounted(() => {
 .name {
   font-weight: bold;
   font-size: 15px;
-  color: #333;
+  color: var(--app-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -252,14 +303,14 @@ onMounted(() => {
 
 .time {
   font-size: 12px;
-  color: #999;
+  color: var(--app-text-muted);
 }
 
 .stock-bar {
   display: flex;
   align-items: center;
   font-size: 12px;
-  color: #ff9f43;
+  color: var(--app-warning);
 }
 
 .stock-text {
@@ -270,17 +321,18 @@ onMounted(() => {
   position: absolute;
   right: 10px;
   bottom: 10px;
-  border-radius: 15px;
-  padding: 5px 15px;
+  border-radius: 12px;
+  padding: 5px 14px;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
 }
 
 /* 禁用状态 */
 .coupon-card.disabled .left-part {
-  background: #ccc;
+  background: var(--app-border-strong);
 }
 
 .coupon-card.disabled {
-  border-color: #eee;
+  border-color: var(--app-border);
   cursor: not-allowed;
 }
 
@@ -292,5 +344,20 @@ onMounted(() => {
 
 .status-tag {
   margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .coupon-container {
+    padding: 16px;
+  }
+
+  .coupon-card {
+    height: auto;
+    min-height: 120px;
+  }
+
+  .left-part {
+    width: 84px;
+  }
 }
 </style>

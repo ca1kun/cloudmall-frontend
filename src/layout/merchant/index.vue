@@ -34,18 +34,18 @@ import SideBar from '@/layout/merchant/sidebar/index.vue'
 <style scoped>
 .layout-shell {
     height: 100vh;
-    background: #f5f7fb;
+    background: var(--app-bg);
 }
 
 .layout-aside {
     height: 100vh;
-    border-right: 1px solid #e9edf4;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+    border-right: 1px solid var(--app-border);
+    background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
 }
 
 .layout-main-shell {
     min-width: 0;
-    background: #f5f7fb;
+    background: var(--app-bg);
 }
 
 .layout-header {
