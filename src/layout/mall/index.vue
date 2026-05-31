@@ -21,6 +21,15 @@
           </el-button>
         </el-badge>
 
+        <el-switch
+          class="theme-switch"
+          :model-value="themeStore.theme === 'dark'"
+          inline-prompt
+          :active-icon="Moon"
+          :inactive-icon="Sunny"
+          @change="(value: boolean) => themeStore.applyTheme(value ? 'dark' : 'light')"
+        />
+
         <span class="welcome-text">你好，{{ userStore.username }}</span>
 
         <!-- 下拉菜单：个人中心 & 退出 -->
@@ -66,12 +75,14 @@ import { useCartStore } from '@/stores/cart'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // 引入所有需要的图标
-import { UserFilled, CaretBottom, ShoppingCart, Ticket, SwitchButton, User } from '@element-plus/icons-vue'
+import { UserFilled, CaretBottom, ShoppingCart, Ticket, SwitchButton, User, Moon, Sunny } from '@element-plus/icons-vue'
 import { getRoleProfilePath } from '@/utils/role'
+import { useThemeStore } from '@/stores/theme'
 
 const userStore = useUserStore()
 const cartStore = useCartStore()
 const router = useRouter()
+const themeStore = useThemeStore()
 
 // 数量实时监控
 const cartCount = computed(() => cartStore.count)
@@ -101,18 +112,18 @@ onMounted(() => {
 <style scoped>
 .mall-layout {
   min-height: 100vh;
-  background-color: #f5f7fa; /* 背景色稍微改浅，更干净 */
+  background-color: var(--app-bg);
 }
 
 .mall-header {
   height: 64px; /* 稍微增高一点 */
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03); /* 增加轻微阴影 */
+  box-shadow: var(--app-shadow-sm);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -121,7 +132,7 @@ onMounted(() => {
 .header-logo {
   font-weight: 800;
   font-size: 22px;
-  color: #409EFF;
+  color: var(--app-primary);
   letter-spacing: 1px;
 }
 
@@ -143,8 +154,8 @@ onMounted(() => {
 
 .welcome-text {
   font-size: 14px;
-  color: #606266;
-  border-left: 1px solid #dcdfe6;
+  color: var(--app-text-muted);
+  border-left: 1px solid var(--app-border);
   padding-left: 20px;
   margin-left: 10px;
 }
@@ -160,12 +171,17 @@ onMounted(() => {
 }
 
 .avatar-wrapper:hover {
-  background: #f0f2f5;
+  background: var(--app-surface-muted);
 }
 
 .avatar-name {
   font-size: 14px;
-  color: #303133;
+  color: var(--app-text);
+}
+
+.theme-switch {
+  --el-switch-on-color: var(--app-primary);
+  --el-switch-off-color: #cbd5f5;
 }
 
 .mall-main {

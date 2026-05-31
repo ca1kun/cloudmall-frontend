@@ -179,9 +179,9 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   background:
-    radial-gradient(1200px 800px at 10% 10%, rgba(37, 99, 235, 0.16), transparent 55%),
-    radial-gradient(900px 700px at 90% 20%, rgba(14, 165, 233, 0.14), transparent 52%),
-    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    radial-gradient(1200px 800px at 10% 10%, var(--app-login-grad-1), transparent 55%),
+    radial-gradient(900px 700px at 90% 20%, var(--app-login-grad-2), transparent 52%),
+    linear-gradient(180deg, var(--app-login-grad-3) 0%, var(--app-bg) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -192,7 +192,7 @@ const handleLogin = async () => {
   position: absolute;
   width: 420px;
   height: 420px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.18), transparent 70%);
+  background: radial-gradient(circle, var(--app-login-orb-1), transparent 70%);
   border-radius: 50%;
   top: -140px;
   right: -140px;
@@ -205,7 +205,7 @@ const handleLogin = async () => {
   position: absolute;
   width: 360px;
   height: 360px;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.18), transparent 72%);
+  background: radial-gradient(circle, var(--app-login-orb-2), transparent 72%);
   border-radius: 50%;
   bottom: -140px;
   left: -120px;
@@ -216,10 +216,10 @@ const handleLogin = async () => {
 .login-box {
   width: 420px;
   padding: 40px;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid rgba(229, 234, 242, 0.9);
+  background: var(--app-login-card-bg);
+  border: 1px solid var(--app-login-card-border);
   border-radius: 24px;
-  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.16);
+  box-shadow: var(--app-login-card-shadow);
   backdrop-filter: blur(18px);
   z-index: 10;
   position: relative;
@@ -249,7 +249,7 @@ const handleLogin = async () => {
   left: -120px;
   width: 240px;
   height: 240px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent 70%);
+  background: radial-gradient(circle, var(--app-login-sheen), transparent 70%);
   filter: blur(6px);
   opacity: 0.7;
   animation: light-sweep 9s ease-in-out infinite;

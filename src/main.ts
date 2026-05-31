@@ -7,12 +7,16 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { useThemeStore } from './stores/theme'
 
 const app = createApp(App)
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
+
+const themeStore = useThemeStore()
+themeStore.applyTheme(themeStore.theme)
 
 app.use(router)
 app.use(ElementPlus)

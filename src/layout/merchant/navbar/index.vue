@@ -10,6 +10,14 @@
 
         <!-- 右侧菜单 -->
         <div class="right-menu">
+            <el-switch
+                class="theme-switch"
+                :model-value="themeStore.theme === 'dark'"
+                inline-prompt
+                :active-icon="Moon"
+                :inactive-icon="Sunny"
+                @change="(value: boolean) => themeStore.applyTheme(value ? 'dark' : 'light')"
+            />
             <div class="user-block">
                 <span class="username">你好，{{ userStore.username }}</span>
 
@@ -43,12 +51,14 @@ import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { UserFilled, CaretBottom, User, SwitchButton } from '@element-plus/icons-vue'
+import { UserFilled, CaretBottom, User, SwitchButton, Moon, Sunny } from '@element-plus/icons-vue'
 import { getRoleHomePath, getRoleProfilePath } from '@/utils/role'
+import { useThemeStore } from '@/stores/theme'
 
 const userStore = useUserStore()
 const router = useRouter()
 const layoutTitle = computed(() => '商家工作台')
+const themeStore = useThemeStore()
 
 const toProfile = () => {
     router.push(getRoleProfilePath(userStore.role))
@@ -73,10 +83,10 @@ const handleLogout = () => {
 .navbar {
     height: 58px;
     position: relative;
-    background: #fff;
-    border: 1px solid #e9edf4;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(20, 40, 80, 0.06);
+    box-shadow: var(--app-shadow-sm);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -90,6 +100,7 @@ const handleLogout = () => {
 .right-menu {
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
 .user-block {
@@ -99,7 +110,7 @@ const handleLogout = () => {
 
 .username {
     font-size: 14px;
-    color: #4a5568;
+    color: var(--app-text-muted);
     margin-right: 12px;
 }
 
@@ -120,7 +131,7 @@ const handleLogout = () => {
 .caret-icon {
     margin-left: 5px;
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--app-text-muted);
 }
 
 .avatar-wrapper {
@@ -130,7 +141,12 @@ const handleLogout = () => {
 }
 
 .avatar-wrapper:hover {
-    background: #f3f6fb;
+    background: var(--app-surface-muted);
+}
+
+.theme-switch {
+    --el-switch-on-color: var(--app-primary);
+    --el-switch-off-color: #cbd5f5;
 }
 </style>
 
