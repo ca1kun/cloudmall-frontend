@@ -179,8 +179,9 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
-    linear-gradient(180deg, #fbfcfe 0%, #f3f7fc 100%);
+    radial-gradient(1200px 800px at 10% 10%, rgba(37, 99, 235, 0.16), transparent 55%),
+    radial-gradient(900px 700px at 90% 20%, rgba(14, 165, 233, 0.14), transparent 52%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
   position: relative;
   overflow: hidden;
 }
@@ -189,21 +190,69 @@ const handleLogin = async () => {
 .login-container::before {
   content: "";
   position: absolute;
-  width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 68%);
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.18), transparent 70%);
   border-radius: 50%;
-  top: -100px; right: -100px;
+  top: -140px;
+  right: -140px;
+  filter: blur(2px);
+  animation: float-orb-1 10s ease-in-out infinite;
+}
+
+.login-container::after {
+  content: "";
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.18), transparent 72%);
+  border-radius: 50%;
+  bottom: -140px;
+  left: -120px;
+  filter: blur(4px);
+  animation: float-orb-2 12s ease-in-out infinite;
 }
 
 .login-box {
   width: 420px;
   padding: 40px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid rgba(229, 234, 242, 0.9);
   border-radius: 24px;
-  box-shadow: var(--app-shadow-lg);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(18px);
   z-index: 10;
+  position: relative;
+  overflow: hidden;
+  animation: card-rise 800ms ease-out;
+}
+
+.login-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.2), rgba(59, 130, 246, 0.35));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: border-glow 6s linear infinite;
+}
+
+.login-box::after {
+  content: "";
+  position: absolute;
+  top: -120px;
+  left: -120px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent 70%);
+  filter: blur(6px);
+  opacity: 0.7;
+  animation: light-sweep 9s ease-in-out infinite;
 }
 
 .login-header {
@@ -220,7 +269,8 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   margin: 0 auto 15px;
-  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.24);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+  animation: logo-float 4s ease-in-out infinite;
 }
 
 .title {
@@ -264,7 +314,18 @@ const handleLogin = async () => {
   border-radius: 8px;
   margin-top: 10px;
   letter-spacing: 1px;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.26);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.45) 45%, transparent 90%);
+  transform: translateX(-120%);
+  animation: btn-shimmer 3.2s ease-in-out infinite;
 }
 
 .login-footer {
@@ -286,5 +347,42 @@ const handleLogin = async () => {
 .login-form :deep(.el-input__wrapper.is-focus) {
   border-color: var(--app-primary);
   background-color: #fff;
+}
+
+@keyframes float-orb-1 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-18px, 12px, 0); }
+}
+
+@keyframes float-orb-2 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(22px, -16px, 0); }
+}
+
+@keyframes card-rise {
+  0% { transform: translateY(14px) scale(0.98); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes border-glow {
+  0% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.45; }
+}
+
+@keyframes light-sweep {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.55; }
+  50% { transform: translate3d(240px, 160px, 0); opacity: 0.9; }
+}
+
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes btn-shimmer {
+  0% { transform: translateX(-120%); }
+  55% { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
 }
 </style>
