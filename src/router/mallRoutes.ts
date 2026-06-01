@@ -20,6 +20,18 @@ export const mallRoutes = [
     meta: { title: '购物车', roles: ['CUSTOMER'] }
   },
   {
+    path: 'order',
+    name: 'MallOrderList',
+    component: () => import('@/views/mall/order/index.vue'),
+    meta: { title: '我的订单', roles: ['CUSTOMER'] }
+  },
+  {
+    path: 'order/:orderId',
+    name: 'MallOrderDetail',
+    component: () => import('@/views/mall/order/detail.vue'),
+    meta: { title: '订单详情', roles: ['CUSTOMER'] }
+  },
+  {
     path: 'checkout',
     name: 'MallCheckout',
     component: () => import('@/views/mall/order/checkout.vue'),

@@ -46,7 +46,18 @@ import { filterRoutesByRole } from '@/utils/role'
 const route = useRoute()
 const userStore = useUserStore()
 const { role } = storeToRefs(userStore)
-const routerList = computed(() => filterRoutesByRole(merchantRouters, role.value))
+const stripHiddenRoutes = (routes: any[]) => {
+    return routes
+        .filter(route => !route.meta?.hideInMenu)
+        .map(route => {
+            if (Array.isArray(route.children) && route.children.length > 0) {
+                return { ...route, children: stripHiddenRoutes(route.children) }
+            }
+            return route
+        })
+}
+
+const routerList = computed(() => stripHiddenRoutes(filterRoutesByRole(merchantRouters, role.value)))
 const activeMenu = computed(() => route.path)
 </script>
 

@@ -1,5 +1,11 @@
 <template>
   <div class="app-container">
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">POS订单列表</h2>
+        <p class="page-subtitle">收银台产生的线下销售订单记录。</p>
+      </div>
+    </div>
     <el-table v-loading="loading" :data="saleList" row-key="saleId">
       <el-table-column label="订单ID" prop="saleId" align="center" width="80" />
       <el-table-column label="订单号" prop="saleNo" align="center" />
@@ -166,6 +172,26 @@ onActivated(() => {
 </script>
 
 <style scoped>
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.page-title {
+  font-size: 20px;
+  color: var(--app-text);
+  margin: 0;
+}
+
+.page-subtitle {
+  margin: 6px 0 0;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
 .drawer-content {
   padding: 20px;
 }

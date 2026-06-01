@@ -13,6 +13,11 @@
           <span class="nav-label">领券中心</span>
         </el-button>
 
+        <el-button link class="nav-item" @click="router.push('/mall/order')">
+          <el-icon :size="18"><List /></el-icon>
+          <span class="nav-label">我的订单</span>
+        </el-button>
+
         <!-- 购物车角标 -->
         <el-badge :value="cartCount" :hidden="cartCount === 0" class="nav-item cart-badge">
           <el-button link @click="router.push('/mall/cart')">
@@ -75,7 +80,7 @@ import { useCartStore } from '@/stores/cart'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // 引入所有需要的图标
-import { UserFilled, CaretBottom, ShoppingCart, Ticket, SwitchButton, User, Moon, Sunny } from '@element-plus/icons-vue'
+import { UserFilled, CaretBottom, ShoppingCart, Ticket, SwitchButton, User, Moon, Sunny, List } from '@element-plus/icons-vue'
 import { getRoleProfilePath } from '@/utils/role'
 import { useThemeStore } from '@/stores/theme'
 

@@ -167,6 +167,74 @@ export interface OrderSummary {
   payAmount: number | string
 }
 
+export type OrderStatus =
+  | 'PENDING_PAYMENT'
+  | 'PAID'
+  | 'SHIPPED'
+  | 'COMPLETED'
+  | 'CANCELED'
+  | 'REFUNDING'
+  | 'REFUNDED'
+  | 'RETURN_REJECTED'
+
+export interface Order {
+  orderId: number
+  orderNo: string
+  status: OrderStatus
+  totalAmount: number
+  payAmount: number
+  totalQuantity: number
+  createTime: string
+  updateTime?: string
+  buyerName?: string
+  buyerPhone?: string
+  receiverName?: string
+  receiverPhone?: string
+  receiverAddress?: string
+  refundReason?: string
+  refundRemark?: string
+  refundApplyTime?: string
+  refundAuditTime?: string
+}
+
+export interface OrderReturnApplyPayload {
+  reason: string
+}
+
+export interface OrderReturnAuditPayload {
+  approved: boolean
+  remark?: string
+}
+
+export interface OrderItem {
+  itemId?: number
+  productId: number
+  productName: string
+  productPic?: string
+  price: number
+  quantity: number
+  subtotal: number
+}
+
+export interface OrderDetail {
+  order: Order
+  items: OrderItem[]
+}
+
+export interface OrderQueryParams extends PageRequest {
+  orderNo?: string
+  status?: OrderStatus | ''
+  startTime?: string
+  endTime?: string
+  buyerName?: string
+  buyerPhone?: string
+}
+
+export interface OrderStatusCount {
+  status: OrderStatus | 'ALL'
+  count: number
+}
+
 export interface UserCouponRecord {
   id?: number
   couponId: number

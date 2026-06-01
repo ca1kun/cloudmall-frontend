@@ -57,7 +57,7 @@ export const merchantRouters = [
     redirect: '/merchant/pos/sale',
     meta: {
       icon: 'Shop',
-      title: '订单管理',
+      title: '收银台',
       roles: ['MERCHANT', 'ADMIN'],
     },
     children: [
@@ -66,19 +66,51 @@ export const merchantRouters = [
         name: 'merchant-sale',
         component: () => import('@/views/merchant/pos/sale/index.vue'),
         meta: {
-          icon: 'Sell',
-          title: '订单列表',
+          icon: 'Wallet',
+          title: '收银台',
+          roles: ['MERCHANT', 'ADMIN'],
+        },
+      },
+    ],
+  },
+  {
+    path: '/merchant/order',
+    name: 'merchant-order',
+    redirect: '/merchant/order/list',
+    meta: {
+      icon: 'List',
+      title: '商城订单',
+      roles: ['MERCHANT', 'ADMIN'],
+    },
+    children: [
+      {
+        path: '/merchant/order/list',
+        name: 'merchant-order-list',
+        component: () => import('@/views/merchant/order/index.vue'),
+        meta: {
+          icon: 'List',
+          title: '商城订单列表',
           roles: ['MERCHANT', 'ADMIN'],
         },
       },
       {
-        path: '/merchant/pos/payment',
-        name: 'merchant-payment',
+        path: '/merchant/order/pos-list',
+        name: 'merchant-pos-order-list',
         component: () => import('@/views/merchant/pos/payment/index.vue'),
         meta: {
-          icon: 'Wallet',
-          title: '收款',
+          icon: 'Sell',
+          title: 'POS订单列表',
           roles: ['MERCHANT', 'ADMIN'],
+        },
+      },
+      {
+        path: '/merchant/order/:orderId',
+        name: 'merchant-order-detail',
+        component: () => import('@/views/merchant/order/detail.vue'),
+        meta: {
+          title: '订单详情',
+          roles: ['MERCHANT', 'ADMIN'],
+          hideInMenu: true,
         },
       },
     ],
