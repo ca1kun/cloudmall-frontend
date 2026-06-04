@@ -1,30 +1,32 @@
 <template>
   <div class="checkout-container">
     <el-card header="填写并核对订单信息">
-
-      <!-- 1. 收货地址 (模拟) -->
+      <!-- 1. 收货地址 -->
       <div class="section">
-        <h3>📍 收货人信息</h3>
-        <el-radio-group v-model="orderForm.addressId">
-          <el-radio :label="1" border>
-            张三 13800138000 <br /> 广东省广州市天河区华南农业大学
-          </el-radio>
-          <el-radio :label="2" border>
-            李四 13900139000 <br /> 广东省广州市天河区五山路483号
-          </el-radio>
-        </el-radio-group>
+        <div class="section-header">
+          <h3>📍 收货人信息</h3>
+        </div>
+        <AddressManager
+          ref="addressManagerRef"
+          v-model="orderForm.addressId"
+          @change="handleAddressChange"
+        />
       </div>
 
       <!-- 2. 商品清单 -->
       <div class="section">
         <h3>📦 商品清单</h3>
         <el-table :data="cartList" border>
-          <el-table-column prop="productName" label="商品名称" />
-          <el-table-column prop="price" label="单价" width="120" />
+          <el-table-column prop="productName" label="商品名称" min-width="200" />
+          <el-table-column prop="price" label="单价" width="120">
+            <template #default="{ row }">
+              ¥ {{ row.price.toFixed(2) }}
+            </template>
+          </el-table-column>
           <el-table-column prop="quantity" label="数量" width="120" />
           <el-table-column label="小计" width="120">
             <template #default="{ row }">
-              {{ (row.price * row.quantity).toFixed(2) }}
+              ¥ {{ (row.price * row.quantity).toFixed(2) }}
             </template>
           </el-table-column>
         </el-table>
@@ -33,11 +35,20 @@
       <!-- 3. 优惠券选择区域 -->
       <div class="section">
         <h3>🎫 优惠券</h3>
-        <el-select v-model="orderForm.couponId" placeholder="请选择优惠券" clearable style="width: 300px"
-          @change="handleCouponChange">
-          <!-- 这里使用 couponId 作为 value -->
-          <el-option v-for="item in couponList" :key="item.id" :label="getLabel(item)" :value="item.couponId"
-            :disabled="!checkCouponAvailable(item)" />
+        <el-select
+          v-model="orderForm.couponId"
+          placeholder="请选择优惠券"
+          clearable
+          style="width: 300px"
+          @change="handleCouponChange"
+        >
+          <el-option
+            v-for="item in couponList"
+            :key="item.id"
+            :label="getLabel(item)"
+            :value="item.couponId"
+            :disabled="!checkCouponAvailable(item)"
+          />
         </el-select>
 
         <div v-if="orderForm.couponId" class="coupon-tip">
@@ -48,27 +59,43 @@
       <!-- 4. 备注 -->
       <div class="section">
         <h3>📝 备注信息</h3>
-        <el-input v-model="orderForm.note" type="textarea" placeholder="选填：请填写备注信息" />
+        <el-input
+          v-model="orderForm.note"
+          type="textarea"
+          :rows="2"
+          maxlength="200"
+          show-word-limit
+          placeholder="选填：请填写备注信息，如配送时间要求等"
+        />
       </div>
 
       <!-- 5. 底部提交 -->
       <div class="footer-bar">
         <div class="total-wrapper">
-          <span class="label">商品总额:</span>
-          <span class="value">¥ {{ goodsTotalPrice.toFixed(2) }}</span>
-
-          <span class="label discount-label" v-if="currentCouponAmount > 0">优惠:</span>
-          <span class="value discount-value" v-if="currentCouponAmount > 0">- ¥ {{ currentCouponAmount }}</span>
-
-          <span class="label" style="margin-left: 20px;">实付金额:</span>
-          <span class="real-price">¥ {{ finalPrice }}</span>
+          <div class="total-row">
+            <span class="label">商品总额:</span>
+            <span class="value">¥ {{ goodsTotalPrice.toFixed(2) }}</span>
+          </div>
+          <div v-if="currentCouponAmount > 0" class="total-row">
+            <span class="label discount-label">优惠:</span>
+            <span class="value discount-value">- ¥ {{ currentCouponAmount.toFixed(2) }}</span>
+          </div>
+          <div class="total-row">
+            <span class="label">实付金额:</span>
+            <span class="real-price">¥ {{ finalPrice }}</span>
+          </div>
         </div>
 
-        <el-button type="primary" size="large" :loading="submitting" @click="submitOrder">
+        <el-button
+          type="primary"
+          size="large"
+          :loading="submitting"
+          :disabled="orderForm.addressId === 0"
+          @click="submitOrder"
+        >
           提交订单
         </el-button>
       </div>
-
     </el-card>
   </div>
 </template>
@@ -78,19 +105,22 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCartListApi } from '@/api/mall/cart'
 import { createOrderApi } from '@/api/mall/order'
-import { getMyCouponIdsApi } from '@/api/mall/coupon' // ✅ 修正：引入获取列表的接口
+import { getMyCouponIdsApi } from '@/api/mall/coupon'
 import { ElMessage } from 'element-plus'
+import AddressManager from '@/components/AddressManager.vue'
+import type { Address } from '@/types/types'
 
 const router = useRouter()
 const cartList = ref<any[]>([])
 const submitting = ref(false)
 const couponList = ref<any[]>([])
+const addressManagerRef = ref<InstanceType<typeof AddressManager> | null>(null)
 
 const orderForm = reactive({
-  addressId: 1,
+  addressId: 0,
   payType: 1,
   note: '',
-  couponId: null as number | null
+  couponId: null as number | null,
 })
 
 // 计算商品总价
@@ -101,8 +131,7 @@ const goodsTotalPrice = computed(() => {
 // 计算当前优惠金额
 const currentCouponAmount = computed(() => {
   if (!orderForm.couponId) return 0
-  // 注意：这里 find 依据的是 couponId
-  const coupon = couponList.value.find(c => c.couponId === orderForm.couponId)
+  const coupon = couponList.value.find((c) => c.couponId === orderForm.couponId)
   return coupon ? coupon.amount : 0
 })
 
@@ -112,7 +141,7 @@ const finalPrice = computed(() => {
   return final > 0 ? final.toFixed(2) : '0.01'
 })
 
-// 加载购物车 (原 init 改名 fetchCartData)
+// 加载购物车
 const fetchCartData = async () => {
   const res = await getCartListApi()
   if (res.code === 200) {
@@ -127,10 +156,8 @@ const fetchCartData = async () => {
 // 加载优惠券
 const fetchCoupons = async () => {
   try {
-    // ✅ 修正：调用列表接口
     const res = await getMyCouponIdsApi()
     if (res.code === 200) {
-      // 过滤出未使用的券 (useStatus === 0)
       couponList.value = (res.data || []).filter((item: any) => item.useStatus === 0)
     }
   } catch (e) {
@@ -138,21 +165,31 @@ const fetchCoupons = async () => {
   }
 }
 
+// 地址变更回调
+const handleAddressChange = (address?: Address) => {
+  if (address?.id) {
+    orderForm.addressId = address.id
+  }
+}
+
 // 提交订单
 const submitOrder = async () => {
+  if (orderForm.addressId === 0) {
+    ElMessage.warning('请选择收货地址')
+    return
+  }
+
   submitting.value = true
   try {
     const res = await createOrderApi(orderForm)
     if (res.code === 200) {
       ElMessage.success('订单提交成功！')
-
-      // 跳转收银台，带上订单ID和金额
       router.push({
         path: '/mall/pay/confirm',
         query: {
           orderId: res.data.orderId,
-          money: res.data.payAmount || finalPrice.value
-        }
+          money: res.data.payAmount || finalPrice.value,
+        },
       })
     } else {
       ElMessage.error(res.message || '下单失败')
@@ -177,9 +214,8 @@ const getLabel = (item: any) => {
 }
 
 const handleCouponChange = () => {
-  // 可以在这里加个校验，如果选了不可用的券自动清除
   if (orderForm.couponId) {
-    const coupon = couponList.value.find(c => c.couponId === orderForm.couponId)
+    const coupon = couponList.value.find((c) => c.couponId === orderForm.couponId)
     if (coupon && !checkCouponAvailable(coupon)) {
       ElMessage.warning('当前金额未满足该优惠券门槛')
       orderForm.couponId = null
@@ -188,14 +224,14 @@ const handleCouponChange = () => {
 }
 
 onMounted(() => {
-  fetchCartData() // 1. 查购物车
-  fetchCoupons()  // 2. 查优惠券
+  fetchCartData()
+  fetchCoupons()
 })
 </script>
 
 <style scoped>
 .checkout-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 20px auto;
 }
 
@@ -203,27 +239,55 @@ onMounted(() => {
   margin-bottom: 30px;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
 h3 {
-  margin-bottom: 15px;
   font-size: 16px;
-    color: var(--app-text);
+  color: var(--app-text);
+  margin: 0;
 }
 
 .footer-bar {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
   margin-top: 40px;
-    border-top: 1px solid var(--app-border);
-  padding-top: 20px;
+  border-top: 1px solid var(--app-border);
+  padding-top: 24px;
 }
 
-.coupon-tip {
-  margin-top: 10px;
-  color: var(--app-danger);
+.total-wrapper {
+  text-align: right;
+}
+
+.total-row {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.total-wrapper .label {
+  color: var(--app-text-muted);
   font-size: 14px;
 }
 
+.total-wrapper .value {
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--app-text);
+  min-width: 80px;
+  text-align: right;
+}
+
 .discount-label {
-  margin-left: 20px;
   color: var(--app-text-muted);
 }
 
@@ -232,14 +296,22 @@ h3 {
 }
 
 .real-price {
-    color: var(--app-danger);
+  color: var(--app-danger);
   font-size: 28px;
   font-weight: bold;
-  margin-left: 10px;
+  min-width: 120px;
+  text-align: right;
 }
 
-.total-wrapper .value {
-  font-weight: bold;
-  margin-right: 5px;
+.coupon-tip {
+  margin-top: 10px;
+  color: var(--app-danger);
+  font-size: 14px;
+}
+
+:deep(.el-card__header) {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--app-text);
 }
 </style>

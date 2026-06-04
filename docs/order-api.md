@@ -321,9 +321,207 @@ REFUNDED   RETURN_REJECTED      │
 
 ---
 
+---
+
+## Address (收货地址)
+
+### 数据模型
+
+#### Address
+```json
+{
+  "id": 1,
+  "receiverName": "张三",
+  "receiverPhone": "13800138000",
+  "province": "广东省",
+  "city": "广州市",
+  "district": "天河区",
+  "detailAddress": "华南农业大学",
+  "zipCode": "510642",
+  "isDefault": 1,
+  "createTime": "2026-06-01 10:00:00",
+  "updateTime": "2026-06-01 10:00:00"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | number | - | 地址ID（新增时无需传入） |
+| `receiverName` | string | 是 | 收货人姓名，2-20字 |
+| `receiverPhone` | string | 是 | 收货人手机号，11位 |
+| `province` | string | 是 | 省份 |
+| `city` | string | 是 | 城市 |
+| `district` | string | 是 | 区县 |
+| `detailAddress` | string | 是 | 详细地址，5-100字 |
+| `zipCode` | string | 否 | 邮政编码，6位数字 |
+| `isDefault` | number | 否 | `0` 非默认 / `1` 默认 |
+
+---
+
+### 1. 查询地址列表
+`GET /system/address/list`
+
+**Query Parameters**
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `pageNum` | number | 是 | 页码 |
+| `pageSize` | number | 是 | 每页条数 |
+| `receiverName` | string | 否 | 收货人姓名（模糊查询） |
+| `receiverPhone` | string | 否 | 收货人手机号（模糊查询） |
+
+**Response data**
+```json
+{
+  "records": [
+    {
+      "id": 1,
+      "receiverName": "张三",
+      "receiverPhone": "13800138000",
+      "province": "广东省",
+      "city": "广州市",
+      "district": "天河区",
+      "detailAddress": "华南农业大学",
+      "zipCode": "510642",
+      "isDefault": 1,
+      "createTime": "2026-06-01 10:00:00"
+    }
+  ],
+  "total": 1,
+  "pageNum": 1,
+  "pageSize": 10
+}
+```
+
+---
+
+### 2. 查询地址详情
+`GET /system/address/{id}`
+
+**Path Parameters**
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | number | 是 | 地址ID |
+
+**Response data**
+```json
+{
+  "id": 1,
+  "receiverName": "张三",
+  "receiverPhone": "13800138000",
+  "province": "广东省",
+  "city": "广州市",
+  "district": "天河区",
+  "detailAddress": "华南农业大学",
+  "zipCode": "510642",
+  "isDefault": 1,
+  "createTime": "2026-06-01 10:00:00",
+  "updateTime": "2026-06-01 10:00:00"
+}
+```
+
+---
+
+### 3. 新增地址
+`POST /system/address`
+
+**Request Body**
+```json
+{
+  "receiverName": "张三",
+  "receiverPhone": "13800138000",
+  "province": "广东省",
+  "city": "广州市",
+  "district": "天河区",
+  "detailAddress": "华南农业大学",
+  "zipCode": "510642",
+  "isDefault": 0
+}
+```
+
+**Response**
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": 1
+}
+```
+> `data` 为新增地址的ID
+
+---
+
+### 4. 修改地址
+`PUT /system/address`
+
+**Request Body**
+```json
+{
+  "id": 1,
+  "receiverName": "张三",
+  "receiverPhone": "13800138000",
+  "province": "广东省",
+  "city": "广州市",
+  "district": "天河区",
+  "detailAddress": "华南农业大学",
+  "zipCode": "510642",
+  "isDefault": 1
+}
+```
+
+**Response**
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": null
+}
+```
+
+---
+
+### 5. 删除地址
+`DELETE /system/address/{id}`
+
+**Path Parameters**
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | number | 是 | 地址ID |
+
+**Response**
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": null
+}
+```
+
+---
+
+### 6. 设为默认地址
+`PUT /system/address/{id}/default`
+
+**Path Parameters**
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | number | 是 | 地址ID |
+
+**Response**
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": null
+}
+```
+> 调用后该地址变为默认，其他地址自动变为非默认
+
+---
+
 ## 注意事项
 
 1. 退货申请仅限订单状态为 `PAID`、`SHIPPED`、`COMPLETED` 时操作
 2. 退货审核仅限订单状态为 `REFUNDING` 时操作
 3. 审核操作为不可逆操作，请谨慎处理
 4. 所有请求需携带 `Authorization: Bearer <token>` 请求头
+5. 地址相关接口仅限已登录用户使用，Token 过期会返回 `401`

@@ -276,3 +276,36 @@ export interface MakePaymentForm {
   cashTendered: number
   changeDue: number
 }
+
+// ==================== 收货地址相关类型 ====================
+
+export interface Address {
+  id?: number
+  receiverName: string
+  receiverPhone: string
+  province: string
+  city: string
+  district: string
+  detailAddress: string
+  zipCode?: string
+  isDefault: number // 0 否, 1 是
+  createTime?: string
+  updateTime?: string
+}
+
+export interface AddressForm {
+  id?: number
+  receiverName: string
+  receiverPhone: string
+  province: string
+  city: string
+  district: string
+  detailAddress: string
+  zipCode?: string
+  isDefault: number
+}
+
+export interface AddressQueryParams extends PageRequest {
+  receiverName?: string
+  receiverPhone?: string
+}

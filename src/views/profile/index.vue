@@ -57,6 +57,10 @@
                                 </el-form-item>
                             </el-form>
                         </el-tab-pane>
+
+                        <el-tab-pane label="收货地址" name="address">
+                            <AddressManager ref="addressManagerRef" />
+                        </el-tab-pane>
                     </el-tabs>
                 </el-col>
             </el-row>
@@ -68,6 +72,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { getUserProfile, updateUserProfile, updateUserPwd } from '@/api/system/profile'
 import UploadImg from '@/components/Uploading.vue'
+import AddressManager from '@/components/AddressManager.vue'
 import { ElMessage } from 'element-plus'
 import { Clock, Iphone } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
@@ -99,6 +104,7 @@ const pwdForm = reactive({
 
 const pwdFormRef = ref()
 const infoFormRef = ref()
+const addressManagerRef = ref<InstanceType<typeof AddressManager> | null>(null)
 
 const infoRules = {
     phone: [
