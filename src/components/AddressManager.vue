@@ -4,18 +4,9 @@
     <div v-if="addressList.length > 0" class="address-list">
       <el-radio-group v-model="selectedId" class="address-radio-group">
         <el-row :gutter="16">
-          <el-col
-            v-for="addr in addressList"
-            :key="addr.id"
-            :xs="24"
-            :sm="12"
-            :md="8"
-          >
-            <div
-              class="address-card"
-              :class="{ active: selectedId === addr.id, default: addr.isDefault === 1 }"
-              @click="selectedId = addr.id || 0"
-            >
+          <el-col v-for="addr in addressList" :key="addr.id" :xs="24" :sm="12" :md="8">
+            <div class="address-card" :class="{ active: selectedId === addr.id, default: addr.isDefault === 1 }"
+              @click="selectedId = addr.id || 0">
               <div class="card-header">
                 <span class="name">{{ addr.receiverName }}</span>
                 <span class="phone">{{ addr.receiverPhone }}</span>
@@ -32,10 +23,10 @@
                 <el-button link type="primary" size="small" @click.stop="handleEdit(addr)">
                   编辑
                 </el-button>
-                <el-button link type="primary" size="small" @click.stop="handleSetDefault(addr.id!)">
+                <el-button link type="primary" size="small" @click.stop="handleSetDefaultClick(addr)">
                   设为默认
                 </el-button>
-                <el-button link type="danger" size="small" @click.stop="handleDelete(addr.id!)">
+                <el-button link type="danger" size="small" @click.stop="handleDeleteClick(addr)">
                   删除
                 </el-button>
               </div>
@@ -48,20 +39,9 @@
     <el-empty v-else description="暂无收货地址，请添加新地址" />
 
     <!-- 新增/编辑地址弹窗 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEdit ? '编辑收货地址' : '新增收货地址'"
-      width="560px"
-      destroy-on-close
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        label-width="90px"
-        class="address-form"
-      >
+    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑收货地址' : '新增收货地址'" width="560px" destroy-on-close
+      :close-on-click-modal="false">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="90px" class="address-form">
         <el-form-item label="收货人" prop="receiverName">
           <el-input v-model="form.receiverName" placeholder="请输入收货人姓名" maxlength="20" />
         </el-form-item>
@@ -71,26 +51,13 @@
         </el-form-item>
 
         <el-form-item label="所在地区" prop="region">
-          <el-cascader
-            v-model="regionValue"
-            :options="regionOptions"
-            :props="cascaderProps"
-            placeholder="请选择省 / 市 / 区"
-            clearable
-            style="width: 100%"
-            @change="handleRegionChange"
-          />
+          <el-cascader v-model="regionValue" :options="regionOptions" :props="cascaderProps" placeholder="请选择省 / 市 / 区"
+            clearable style="width: 100%" @change="handleRegionChange" />
         </el-form-item>
 
         <el-form-item label="详细地址" prop="detailAddress">
-          <el-input
-            v-model="form.detailAddress"
-            type="textarea"
-            :rows="2"
-            placeholder="请输入街道、楼牌号等详细地址"
-            maxlength="100"
-            show-word-limit
-          />
+          <el-input v-model="form.detailAddress" type="textarea" :rows="2" placeholder="请输入街道、楼牌号等详细地址" maxlength="100"
+            show-word-limit />
         </el-form-item>
 
         <el-form-item label="邮政编码" prop="zipCode">
@@ -113,7 +80,9 @@
     <!-- 底部操作栏 -->
     <div class="address-actions">
       <el-button type="primary" plain @click="handleAdd">
-        <el-icon><Plus /></el-icon>
+        <el-icon>
+          <Plus />
+        </el-icon>
         新增收货地址
       </el-button>
       <el-button v-if="addressList.length > 0" @click="handleManage">
@@ -126,6 +95,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import type { Address, AddressForm } from '@/types/types'
 import {
@@ -152,9 +122,14 @@ const selectedId = ref<number>(props.modelValue || 0)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const submitting = ref(false)
-const formRef = ref<any>(null)
+type AddressFormModel = AddressForm & {
+  id?: number
+}
 
-const form = reactive<AddressForm>({
+const formRef = ref<FormInstance>()
+
+const form = reactive<AddressFormModel>({
+  id: undefined,
   receiverName: '',
   receiverPhone: '',
   province: '',
@@ -236,12 +211,14 @@ const fetchAddressList = async () => {
   try {
     const res = await listAddressApi({ pageNum: 1, pageSize: 50 })
     if (res.code === 200) {
-      const list = res.data?.records || res.data?.list || []
+      const list = (res.data?.records || res.data?.list || []) as Address[]
       addressList.value = list
       // 如果没有选中地址，自动选中默认地址
       if (selectedId.value === 0 && list.length > 0) {
         const defaultAddr = list.find((a) => a.isDefault === 1)
-        selectedId.value = defaultAddr?.id || list[0].id || 0
+        const firstAddr = list[0]
+
+        selectedId.value = defaultAddr?.id ?? firstAddr?.id ?? 0
       }
     }
   } catch (error) {
@@ -274,29 +251,37 @@ const handleEdit = (addr: Address) => {
   form.id = addr.id
   form.receiverName = addr.receiverName
   form.receiverPhone = addr.receiverPhone
-  form.province = addr.province
-  form.city = addr.city
-  form.district = addr.district
+  form.province = addr.province ?? ''
+  form.city = addr.city ?? ''
+  form.district = addr.district ?? ''
   form.detailAddress = addr.detailAddress
   form.zipCode = addr.zipCode || ''
   form.isDefault = addr.isDefault
   defaultSwitch.value = addr.isDefault === 1
 
   // 回显省市区
-  regionValue.value = [addr.province, addr.city, addr.district]
+  regionValue.value = [
+    addr.province ?? '',
+    addr.city ?? '',
+    addr.district ?? '',
+  ]
   dialogVisible.value = true
 }
 
 const handleRegionChange = (value: unknown) => {
   if (isStringArray(value) && value.length === 3) {
-    form.province = value[0]
-    form.city = value[1]
-    form.district = value[2]
+    const [province, city, district] = value as [string, string, string]
+
+    form.province = province
+    form.city = city
+    form.district = district
   } else {
     form.province = ''
     form.city = ''
     form.district = ''
   }
+
+  formRef.value?.validateField?.('region')
 }
 
 const handleSubmit = async () => {
@@ -330,6 +315,22 @@ const handleSubmit = async () => {
       submitting.value = false
     }
   })
+}
+
+const handleSetDefaultClick = (addr: Address) => {
+  if (!addr.id) {
+    ElMessage.warning('地址ID不存在，无法设置默认地址')
+    return
+  }
+  handleSetDefault(addr.id)
+}
+
+const handleDeleteClick = (addr: Address) => {
+  if (!addr.id) {
+    ElMessage.warning('地址ID不存在，无法删除')
+    return
+  }
+  handleDelete(addr.id)
 }
 
 const handleDelete = async (id: number) => {
