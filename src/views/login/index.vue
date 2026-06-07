@@ -10,12 +10,12 @@
         <span class="brand-mark">
           <el-icon :size="22"><Shop /></el-icon>
         </span>
-        <span>SCAU 商城</span>
+        <span>不知道什么名字商城</span>
       </div>
 
       <div class="panel-copy">
         <p class="eyebrow">WELCOME BACK</p>
-        <h1>让每一次登录<br />都有一点回应。</h1>
+        <h1>如果你在这里买了东西<br />你会发现你买了东西</h1>
         <p>微服务分布式电商平台</p>
       </div>
 
