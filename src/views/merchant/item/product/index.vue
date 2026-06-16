@@ -273,8 +273,8 @@ const handleView = async (id: number) => {
   } catch (e) { }
 }
 
-const handleClose = (done: () => void) => {
-  done()
+const handleDrawerClosed = () => {
+  productDetail.value = undefined
 }
 
 const selectedProducts = ref<Product[]>([])
@@ -323,7 +323,8 @@ onMounted(() => {
   <div class="product-management page-shell">
     <el-card class="page-card" shadow="never">
       <div class="page-header">
-        <div>
+        <div class="page-heading">
+          <span class="page-eyebrow">PRODUCT CENTER</span>
           <h2 class="page-title">产品管理</h2>
           <p class="page-subtitle">统一维护商品信息，控制上架节奏与库存状态。</p>
         </div>
@@ -337,14 +338,14 @@ onMounted(() => {
       </div>
 
       <el-form :model="queryParams" ref="queryRef" :inline="true" class="search-form">
-        <el-form-item label="名称">
-          <el-input v-model="queryParams.productName" placeholder="输入名称" clearable @keyup.enter="search" />
+        <el-form-item label="商品名称">
+          <el-input v-model="queryParams.productName" placeholder="输入商品名称" clearable @keyup.enter="search" />
         </el-form-item>
-        <el-form-item label="分类">
+        <el-form-item label="商品分类">
           <el-cascader v-model="queryParams.productCategoryId" :options="categoryTree"
             :props="{ ...cascaderProps, checkStrictly: true }" placeholder="全部" clearable :show-all-levels="false" />
         </el-form-item>
-        <el-form-item>
+        <el-form-item class="search-actions">
           <el-button type="primary" icon="Search" @click="search">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
         </el-form-item>
@@ -356,24 +357,42 @@ onMounted(() => {
 
         <el-table-column label="图片" width="100" align="center">
           <template #default="{ row }">
-            <el-image style="width: 60px; height: 60px; border-radius: 4px;" :src="row.imageUrl"
-              :preview-src-list="[row.imageUrl]" fit="cover" preview-teleported />
+            <div class="image-wrapper">
+              <el-image class="product-image" :src="row.imageUrl"
+                :preview-src-list="row.imageUrl ? [row.imageUrl] : []" fit="cover" preview-teleported>
+                <template #error>
+                  <div class="image-placeholder">暂无图片</div>
+                </template>
+              </el-image>
+            </div>
           </template>
         </el-table-column>
 
-        <el-table-column prop="productName" label="名称" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="productName" label="名称" min-width="170" show-overflow-tooltip>
+          <template #default="{ row }">
+            <span class="product-name">{{ row.productName }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="productSn" label="编号" width="160" />
         <el-table-column prop="price" label="价格" width="120">
-          <template #default="{ row }">¥ {{ row.price }}</template>
+          <template #default="{ row }"><span class="price-tag">¥ {{ row.price }}</span></template>
         </el-table-column>
-        <el-table-column prop="stock" label="库存" width="100" />
+        <el-table-column prop="stock" label="库存" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.stock > 0 ? 'success' : 'danger'" effect="light" round>
+              {{ row.stock }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="productDescription" label="描述" min-width="160" show-overflow-tooltip />
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="230" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button link type="primary" icon="View" @click="handleView(row.productId)">查看</el-button>
-            <el-button link type="warning" icon="Edit" @click="edit(row.productId)">编辑</el-button>
-            <el-button link type="danger" icon="Delete" @click="deleteProduct(row.productId)">删除</el-button>
+            <div class="action-buttons">
+              <el-button size="small" type="primary" plain icon="View" @click="handleView(row.productId)">查看</el-button>
+              <el-button size="small" type="warning" plain icon="Edit" @click="edit(row.productId)">编辑</el-button>
+              <el-button size="small" type="danger" plain icon="Delete" @click="deleteProduct(row.productId)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -430,9 +449,30 @@ onMounted(() => {
       </template>
     </el-dialog>
 
-    <el-drawer v-model="drawerVisible" title="产品详情" direction="rtl" size="50%" :with-header="true" @close="handleClose">
+    <el-drawer
+      v-model="drawerVisible"
+      title="产品详情"
+      direction="rtl"
+      size="min(620px, 92vw)"
+      class="product-drawer"
+      destroy-on-close
+      @closed="handleDrawerClosed"
+    >
       <div class="drawer-content" v-if="productDetail">
-        <el-descriptions :column="2" border>
+        <div class="detail-hero">
+          <el-image class="detail-image" :src="productDetail.imageUrl" fit="cover">
+            <template #error>
+              <div class="detail-image-placeholder">暂无商品图片</div>
+            </template>
+          </el-image>
+          <div class="detail-summary">
+            <span class="detail-label">商品信息</span>
+            <h3>{{ productDetail.productName }}</h3>
+            <p>{{ productDetail.productDescription || '暂无商品描述' }}</p>
+            <strong>¥ {{ productDetail.price }}</strong>
+          </div>
+        </div>
+        <el-descriptions :column="2" border class="detail-descriptions">
           <el-descriptions-item label="产品名称">{{ productDetail.productName }}</el-descriptions-item>
           <el-descriptions-item label="产品编号">{{ productDetail.productSn }}</el-descriptions-item>
           <el-descriptions-item label="产品价格">¥ {{ productDetail.price }}</el-descriptions-item>
@@ -441,6 +481,11 @@ onMounted(() => {
           <el-descriptions-item label="描述">{{ productDetail.productDescription || '-' }}</el-descriptions-item>
         </el-descriptions>
       </div>
+      <template #footer>
+        <div class="drawer-footer">
+          <el-button type="primary" @click="drawerVisible = false">关闭</el-button>
+        </div>
+      </template>
     </el-drawer>
   </div>
 </template>

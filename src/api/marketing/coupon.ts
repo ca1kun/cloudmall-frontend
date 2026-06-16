@@ -15,3 +15,8 @@ export const addCouponApi = (data: CouponForm) => {
 export const preheatCouponApi = (id: number) => {
   return request.post<never, ApiResult<string>>(`/coupon/preheat/${id}`)
 }
+
+// 删除优惠券
+export const deleteCouponApi = (id: number) => {
+  return request.delete<never, ApiResult<string>>(`/coupon/delete/${id}`)
+}

@@ -2,38 +2,50 @@
   <div class="address-manager">
     <!-- 地址卡片列表 -->
     <div v-if="addressList.length > 0" class="address-list">
-      <el-radio-group v-model="selectedId" class="address-radio-group">
-        <el-row :gutter="16">
-          <el-col v-for="addr in addressList" :key="addr.id" :xs="24" :sm="12" :md="8">
-            <div class="address-card" :class="{ active: selectedId === addr.id, default: addr.isDefault === 1 }"
-              @click="selectedId = addr.id || 0">
-              <div class="card-header">
+      <div class="address-list-header">
+        <span>已保存 {{ addressList.length }} 个收货地址</span>
+        <span>点击卡片可选择地址</span>
+      </div>
+      <div class="address-grid" :class="{ 'is-scrollable': addressList.length > 6 }">
+        <article
+          v-for="addr in addressList"
+          :key="addr.id"
+          class="address-card"
+          :class="{ active: selectedId === addr.id, default: addr.isDefault === 1 }"
+          @click="selectedId = addr.id || 0"
+        >
+          <div class="card-header">
+            <div class="contact-info">
                 <span class="name">{{ addr.receiverName }}</span>
                 <span class="phone">{{ addr.receiverPhone }}</span>
-                <el-tag v-if="addr.isDefault === 1" size="small" type="danger" class="default-tag">
-                  默认
-                </el-tag>
-              </div>
-              <div class="card-body">
-                <p class="region">{{ addr.province }} {{ addr.city }} {{ addr.district }}</p>
-                <p class="detail">{{ addr.detailAddress }}</p>
-                <p v-if="addr.zipCode" class="zip">邮编: {{ addr.zipCode }}</p>
-              </div>
-              <div class="card-footer">
-                <el-button link type="primary" size="small" @click.stop="handleEdit(addr)">
-                  编辑
-                </el-button>
-                <el-button link type="primary" size="small" @click.stop="handleSetDefaultClick(addr)">
-                  设为默认
-                </el-button>
-                <el-button link type="danger" size="small" @click.stop="handleDeleteClick(addr)">
-                  删除
-                </el-button>
-              </div>
             </div>
-          </el-col>
-        </el-row>
-      </el-radio-group>
+            <el-tag v-if="addr.isDefault === 1" size="small" type="danger" effect="light">
+              默认地址
+            </el-tag>
+          </div>
+
+          <div class="card-body">
+            <p class="address-label">收货地址</p>
+            <p class="full-address" :title="formatFullAddress(addr)">
+              {{ formatFullAddress(addr) }}
+            </p>
+            <p v-if="addr.zipCode" class="zip">邮政编码：{{ addr.zipCode }}</p>
+          </div>
+
+          <div class="card-footer">
+            <el-button link type="primary" @click.stop="handleEdit(addr)">编辑</el-button>
+            <el-button
+              v-if="addr.isDefault !== 1"
+              link
+              type="primary"
+              @click.stop="handleSetDefaultClick(addr)"
+            >
+              设为默认
+            </el-button>
+            <el-button link type="danger" @click.stop="handleDeleteClick(addr)">删除</el-button>
+          </div>
+        </article>
+      </div>
     </div>
 
     <el-empty v-else description="暂无收货地址，请添加新地址" />
@@ -105,7 +117,7 @@ import {
   deleteAddressApi,
   setDefaultAddressApi,
 } from '@/api/system/address'
-import { regionData } from 'element-china-area-data'
+import { codeToText, regionData } from 'element-china-area-data'
 
 const props = defineProps<{
   modelValue?: number
@@ -187,6 +199,20 @@ const rules = {
 const selectedAddress = computed(() => {
   return addressList.value.find((a) => a.id === selectedId.value)
 })
+
+const formatRegionName = (value?: string) => {
+  if (!value) return ''
+  return codeToText[value] || value
+}
+
+const formatFullAddress = (address: Address) => {
+  const region = [address.province, address.city, address.district]
+    .map(formatRegionName)
+    .filter(Boolean)
+    .join(' ')
+
+  return [region, address.detailAddress].filter(Boolean).join(' ')
+}
 
 // 类型守卫
 const isStringArray = (value: unknown): value is string[] => {
@@ -389,105 +415,206 @@ onMounted(() => {
 }
 
 .address-list {
-  margin-bottom: 16px;
+  margin: 20px 0 24px;
 }
 
-.address-radio-group {
-  width: 100%;
+.address-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
+.address-list-header span:first-child {
+  color: var(--app-text);
+  font-weight: 600;
+}
+
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+}
+
+.address-grid.is-scrollable {
+  max-height: 590px;
+  padding: 2px 8px 12px 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--app-border) transparent;
+  scrollbar-width: thin;
+}
+
+.address-grid.is-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.address-grid.is-scrollable::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: var(--app-border);
 }
 
 .address-card {
-  border: 2px solid var(--app-border);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  display: flex;
+  min-width: 0;
+  min-height: 190px;
+  flex-direction: column;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
   background: var(--app-surface);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
   position: relative;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .address-card:hover {
   border-color: var(--app-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
 }
 
 .address-card.active {
   border-color: var(--app-primary);
-  background: linear-gradient(135deg, var(--app-primary-light, #f0f5ff) 0%, var(--app-surface) 100%);
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.07), transparent 55%),
+    var(--app-surface);
+  box-shadow:
+    0 0 0 1px var(--app-primary),
+    0 10px 26px rgba(37, 99, 235, 0.1);
 }
 
-.address-card.default::before {
+.address-card.active::after {
   content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 24px 24px 0;
-  border-color: transparent var(--el-color-danger) transparent transparent;
+  top: 14px;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  border: 3px solid var(--app-surface);
+  border-radius: 50%;
+  background: var(--app-primary);
+  box-shadow: 0 0 0 2px var(--app-primary);
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 16px;
+  padding-right: 22px;
+}
+
+.contact-info {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .card-header .name {
-  font-size: 16px;
-  font-weight: 600;
+  overflow-wrap: anywhere;
   color: var(--app-text);
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .card-header .phone {
-  font-size: 14px;
   color: var(--app-text-muted);
-}
-
-.default-tag {
-  margin-left: auto;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .card-body {
-  margin-bottom: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
-.card-body .region {
-  font-size: 14px;
-  color: var(--app-text);
-  margin-bottom: 4px;
-}
-
-.card-body .detail {
-  font-size: 13px;
+.address-label {
+  margin: 0 0 6px;
   color: var(--app-text-muted);
-  line-height: 1.5;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.full-address {
+  display: -webkit-box;
+  min-height: 48px;
+  margin: 0;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .card-body .zip {
-  font-size: 12px;
+  margin: 10px 0 0;
   color: var(--app-text-muted);
-  margin-top: 4px;
+  font-size: 13px;
 }
 
 .card-footer {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--app-border);
-  padding-top: 10px;
+}
+
+.card-footer :deep(.el-button) {
+  margin-left: 0;
 }
 
 .address-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .address-form :deep(.el-input__wrapper),
 .address-form :deep(.el-textarea__inner) {
   border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .address-list-header span:last-child {
+    display: none;
+  }
+
+  .address-grid.is-scrollable {
+    max-height: 520px;
+  }
+
+  .address-card {
+    min-height: 180px;
+    padding: 16px;
+  }
+
+  .card-header {
+    align-items: flex-start;
+  }
+
+  .contact-info {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 </style>

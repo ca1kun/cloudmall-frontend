@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="mall-header">
       <div class="header-logo" @click="router.push('/mall/home')" style="cursor: pointer;">
-        SCAU 商城
+        不知道什么名字商城
       </div>
 
       <div class="header-nav">
@@ -34,8 +34,6 @@
           :inactive-icon="Sunny"
           @change="(value: boolean) => themeStore.applyTheme(value ? 'dark' : 'light')"
         />
-
-        <span class="welcome-text">你好，{{ userStore.username }}</span>
 
         <!-- 下拉菜单：个人中心 & 退出 -->
         <el-dropdown trigger="click">

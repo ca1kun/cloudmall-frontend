@@ -2,11 +2,12 @@
   <div class="mall-home">
     <!-- 1. 顶部轮播图区 -->
     <div class="carousel-section">
-      <el-carousel :interval="5000" type="card" height="320px" indicator-position="outside">
+      <el-carousel :interval="5000" height="340px" indicator-position="outside">
         <el-carousel-item v-for="item in bannerList" :key="item.id">
           <div class="banner-item" :style="{ backgroundImage: `url(${item.img})` }" @click="handleBannerClick(item)">
             <div class="banner-overlay">
               <div class="banner-text">
+                <span class="banner-kicker">CloudMall Select</span>
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.subTitle }}</p>
               </div>
@@ -47,7 +48,11 @@
       :infinite-scroll-distance="30"
     >
       <div class="list-title-box">
-        <h3 class="section-title">🔥 猜你喜欢</h3>
+        <div>
+          <span class="section-kicker">精选商品</span>
+          <h3 class="section-title">猜你喜欢</h3>
+        </div>
+        <span class="section-subtitle">为你挑选近期热门好物</span>
       </div>
 
       <el-row :gutter="20">
@@ -216,14 +221,17 @@ onMounted(() => {
 
 <style scoped>
 .mall-home {
-  background-color: var(--app-bg);
+  background:
+    linear-gradient(180deg, rgba(64, 158, 255, 0.08), transparent 280px),
+    var(--app-bg);
   min-height: 100vh;
+  padding-bottom: 48px;
 }
 
 /* 1. 轮播图美化 */
 .carousel-section {
-  padding: 30px 0;
-  max-width: 1300px;
+  padding: 28px 20px 18px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 .banner-item {
@@ -231,32 +239,52 @@ onMounted(() => {
   height: 100%;
   background-size: cover;
   background-position: center;
-  border-radius: 16px;
+  border-radius: 18px;
   position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.16);
 }
 .banner-overlay {
   position: absolute;
-  bottom: 0; left: 0; width: 100%; height: 50%;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
-  border-radius: 0 0 16px 16px;
-  display: flex; align-items: flex-end; padding: 25px;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.2) 56%, rgba(15, 23, 42, 0.08));
+  display: flex;
+  align-items: flex-end;
+  padding: 36px;
 }
-.banner-text h3 { color: #fff; font-size: 26px; margin: 0; }
-.banner-text p { color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 15px; }
+.banner-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: rgba(255,255,255,0.78);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.banner-text h3 { color: #fff; font-size: 34px; margin: 0; font-weight: 800; }
+.banner-text p { color: rgba(255,255,255,0.82); margin: 10px 0 0; font-size: 16px; }
+
+.carousel-section :deep(.el-carousel__button) {
+  width: 22px;
+  height: 4px;
+  border-radius: 999px;
+}
 
 /* 2. 筛选栏 - 吸顶效果 */
 .sticky-filter-wrapper {
-  background: var(--app-surface);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 64px; /* 假设你的 navbar 高度是 64px */
   z-index: 999;
-  box-shadow: var(--app-shadow-sm);
-  margin-bottom: 30px;
+  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  margin-bottom: 28px;
 }
 .filter-bar {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 15px 20px;
+  padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -265,11 +293,12 @@ onMounted(() => {
 .filter-label {
   font-size: 15px; font-weight: 700; color: var(--app-text); margin-right: 20px;
 }
-.custom-cascader { width: 300px; }
+.custom-cascader { width: 280px; }
 
 .custom-cascader :deep(.el-input__wrapper) {
   background: var(--app-surface);
   box-shadow: 0 0 0 1px var(--app-border) inset;
+  border-radius: 12px;
 }
 
 .custom-cascader :deep(.el-input__inner) {
@@ -298,20 +327,32 @@ onMounted(() => {
   padding: 0 20px;
 }
 .list-title-box {
-  margin-bottom: 25px;
-  border-left: 5px solid var(--app-primary);
-  padding-left: 15px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
 }
-.section-title { font-size: 22px; font-weight: 800; color: var(--app-text); margin: 0; }
+.section-kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--app-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+.section-title { font-size: 24px; font-weight: 800; color: var(--app-text); margin: 0; }
+.section-subtitle { color: var(--app-text-muted); font-size: 14px; }
 
 .product-card {
-  border: none;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
   background: var(--app-surface);
 }
 .product-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--app-primary) 44%, var(--app-border));
   box-shadow: var(--app-shadow-md) !important;
 }
 
@@ -321,7 +362,7 @@ onMounted(() => {
 .product-image { width: 100%; height: 100%; transition: transform 0.5s; }
 .product-card:hover .product-image { transform: scale(1.08); }
 
-.product-info { padding: 18px; }
+.product-info { padding: 16px; }
 .product-name {
   font-size: 16px; font-weight: 700; color: var(--app-text); height: 22px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 8px;
@@ -336,7 +377,14 @@ onMounted(() => {
 .currency { font-size: 14px; font-weight: bold; }
 .price-val { font-size: 24px; font-weight: 800; font-family: 'Helvetica Neue'; }
 
-.add-btn { box-shadow: var(--app-shadow-sm); }
+.add-btn {
+  box-shadow: var(--app-shadow-sm);
+  transition: transform 0.2s ease;
+}
+
+.add-btn:hover {
+  transform: scale(1.06);
+}
 
 .col-mb { margin-bottom: 25px; }
 
@@ -348,5 +396,30 @@ onMounted(() => {
 .image-slot {
   display: flex; justify-content: center; align-items: center;
   width: 100%; height: 100%; background: var(--app-surface-muted); color: var(--app-text-muted);
+}
+
+@media (max-width: 768px) {
+  .carousel-section {
+    padding: 18px 14px 10px;
+  }
+
+  .banner-overlay {
+    padding: 24px;
+  }
+
+  .banner-text h3 {
+    font-size: 26px;
+  }
+
+  .filter-bar,
+  .filter-left,
+  .list-title-box {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .custom-cascader {
+    width: 100%;
+  }
 }
 </style>

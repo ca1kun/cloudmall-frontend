@@ -1,10 +1,20 @@
 <template>
   <div class="checkout-container">
-    <el-card header="填写并核对订单信息">
+    <el-card class="checkout-card" shadow="never">
+      <template #header>
+        <div class="checkout-header">
+          <div>
+            <h2>确认订单</h2>
+            <p>核对收货信息、商品清单与优惠金额</p>
+          </div>
+          <el-tag effect="plain" round>{{ cartList.length }} 件商品</el-tag>
+        </div>
+      </template>
       <!-- 1. 收货地址 -->
       <div class="section">
         <div class="section-header">
-          <h3>📍 收货人信息</h3>
+          <span class="section-icon"><el-icon><Location /></el-icon></span>
+          <h3>收货人信息</h3>
         </div>
         <AddressManager
           ref="addressManagerRef"
@@ -15,8 +25,11 @@
 
       <!-- 2. 商品清单 -->
       <div class="section">
-        <h3>📦 商品清单</h3>
-        <el-table :data="cartList" border>
+        <div class="section-header">
+          <span class="section-icon"><el-icon><Goods /></el-icon></span>
+          <h3>商品清单</h3>
+        </div>
+        <el-table :data="cartList" class="checkout-table">
           <el-table-column prop="productName" label="商品名称" min-width="200" />
           <el-table-column prop="price" label="单价" width="120">
             <template #default="{ row }">
@@ -34,7 +47,10 @@
 
       <!-- 3. 优惠券选择区域 -->
       <div class="section">
-        <h3>🎫 优惠券</h3>
+        <div class="section-header">
+          <span class="section-icon"><el-icon><Ticket /></el-icon></span>
+          <h3>优惠券</h3>
+        </div>
         <el-select
           v-model="orderForm.couponId"
           placeholder="请选择优惠券"
@@ -58,7 +74,10 @@
 
       <!-- 4. 备注 -->
       <div class="section">
-        <h3>📝 备注信息</h3>
+        <div class="section-header">
+          <span class="section-icon"><el-icon><EditPen /></el-icon></span>
+          <h3>备注信息</h3>
+        </div>
         <el-input
           v-model="orderForm.note"
           type="textarea"
@@ -109,6 +128,7 @@ import { getMyCouponIdsApi } from '@/api/mall/coupon'
 import { ElMessage } from 'element-plus'
 import AddressManager from '@/components/AddressManager.vue'
 import type { Address } from '@/types/types'
+import { EditPen, Goods, Location, Ticket } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const cartList = ref<any[]>([])
@@ -232,18 +252,69 @@ onMounted(() => {
 <style scoped>
 .checkout-container {
   max-width: 1200px;
-  margin: 20px auto;
+  margin: 24px auto 48px;
+  padding: 0 20px;
+}
+
+.checkout-card {
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-md);
+}
+
+.checkout-card :deep(.el-card__header) {
+  border-bottom: 1px solid var(--app-border);
+  background:
+    linear-gradient(90deg, rgba(64, 158, 255, 0.1), rgba(103, 194, 58, 0.08)),
+    var(--app-surface);
+}
+
+.checkout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.checkout-header h2 {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.checkout-header p {
+  margin: 6px 0 0;
+  color: var(--app-text-muted);
+  font-size: 14px;
 }
 
 .section {
-  margin-bottom: 30px;
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface-soft);
 }
 
 .section-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-bottom: 12px;
+}
+
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--app-primary);
+  background: rgba(64, 158, 255, 0.12);
 }
 
 h3 {
@@ -252,14 +323,37 @@ h3 {
   margin: 0;
 }
 
+.checkout-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.checkout-table :deep(.el-table__header-wrapper th) {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  font-weight: 600;
+}
+
+.checkout-table :deep(.el-table__row:hover td) {
+  background: color-mix(in srgb, var(--app-primary) 5%, var(--app-surface));
+}
+
+:deep(.el-select .el-input__wrapper),
+:deep(.el-textarea__inner) {
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--app-border) inset;
+}
+
 .footer-bar {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 24px;
-  margin-top: 40px;
+  margin: 28px -20px -20px;
   border-top: 1px solid var(--app-border);
-  padding-top: 24px;
+  padding: 20px;
+  background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .total-wrapper {
@@ -310,8 +404,26 @@ h3 {
 }
 
 :deep(.el-card__header) {
-  font-size: 18px;
-  font-weight: 600;
   color: var(--app-text);
+}
+
+@media (max-width: 768px) {
+  .checkout-container {
+    padding: 0 14px;
+  }
+
+  .checkout-header,
+  .footer-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .section {
+    padding: 16px;
+  }
+
+  .total-wrapper {
+    width: 100%;
+  }
 }
 </style>

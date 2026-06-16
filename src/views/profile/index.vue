@@ -10,22 +10,43 @@
                 </div>
             </template>
 
-            <el-row :gutter="20">
+            <el-row :gutter="20" class="profile-layout">
                 <el-col :span="8" :xs="24">
                     <div class="user-info text-center profile-panel">
-                        <el-avatar :size="100" :src="userInfo.avatar || defaultAvatar" />
-                        <h3>{{ userInfo.username }}</h3>
-                        <p>{{ roleLabel }}</p>
+                        <div class="avatar-ring">
+                            <el-avatar :size="104" :src="userInfo.avatar || defaultAvatar" />
+                        </div>
+                        <h3>{{ userInfo.username || userStore.username || '未命名用户' }}</h3>
+                        <el-tag class="role-badge" type="primary" effect="light">{{ roleLabel }}</el-tag>
                         <div class="user-desc">
-                            <p><el-icon><Iphone /></el-icon> {{ userInfo.phone || '暂未绑定手机' }}</p>
-                            <p><el-icon><Clock /></el-icon> 注册时间: {{ userInfo.createTime }}</p>
+                            <div class="info-row">
+                                <span class="info-icon"><el-icon><Iphone /></el-icon></span>
+                                <div>
+                                    <span class="info-label">手机号码</span>
+                                    <strong>{{ userInfo.phone || '暂未绑定手机' }}</strong>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-icon"><el-icon><Clock /></el-icon></span>
+                                <div>
+                                    <span class="info-label">注册时间</span>
+                                    <strong>{{ userInfo.createTime || '-' }}</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </el-col>
 
                 <el-col :span="16" :xs="24">
-                    <el-tabs v-model="activeTab">
-                        <el-tab-pane label="基本资料" name="info">
+                    <div class="profile-content">
+                        <el-tabs v-model="activeTab" class="profile-tabs">
+                        <el-tab-pane name="info">
+                            <template #label>
+                                <span class="tab-label">
+                                    <el-icon><User /></el-icon>
+                                    基本资料
+                                </span>
+                            </template>
                             <el-form ref="infoFormRef" :model="infoForm" :rules="infoRules" label-width="80px" class="profile-form">
                                 <el-form-item label="用户头像">
                                     <upload-img v-model="infoForm.avatar" />
@@ -41,7 +62,13 @@
                             </el-form>
                         </el-tab-pane>
 
-                        <el-tab-pane label="修改密码" name="password">
+                        <el-tab-pane name="password">
+                            <template #label>
+                                <span class="tab-label">
+                                    <el-icon><Lock /></el-icon>
+                                    修改密码
+                                </span>
+                            </template>
                             <el-form ref="pwdFormRef" :model="pwdForm" :rules="pwdRules" label-width="80px" class="profile-form">
                                 <el-form-item label="旧密码" prop="oldPassword">
                                     <el-input v-model="pwdForm.oldPassword" type="password" show-password />
@@ -58,10 +85,17 @@
                             </el-form>
                         </el-tab-pane>
 
-                        <el-tab-pane label="收货地址" name="address">
+                        <el-tab-pane v-if="showAddressTab" name="address">
+                            <template #label>
+                                <span class="tab-label">
+                                    <el-icon><Location /></el-icon>
+                                    收货地址
+                                </span>
+                            </template>
                             <AddressManager ref="addressManagerRef" />
                         </el-tab-pane>
-                    </el-tabs>
+                        </el-tabs>
+                    </div>
                 </el-col>
             </el-row>
         </el-card>
@@ -69,13 +103,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getUserProfile, updateUserProfile, updateUserPwd } from '@/api/system/profile'
 import UploadImg from '@/components/Uploading.vue'
 import AddressManager from '@/components/AddressManager.vue'
 import { ElMessage } from 'element-plus'
-import { Clock, Iphone } from '@element-plus/icons-vue'
+import { Clock, Iphone, Location, Lock, User } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { normalizeRole } from '@/utils/role'
 
 const userStore = useUserStore()
 const activeTab = ref('info')
@@ -83,13 +118,18 @@ const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726
 
 const userInfo = ref<any>({})
 
+const currentRole = computed(() => normalizeRole(userInfo.value?.role || userStore.role))
+
 const roleLabel = computed(() => {
-    switch (userInfo.value?.role) {
+    switch (currentRole.value) {
         case 'MERCHANT': return '商家'
         case 'CUSTOMER': return '顾客'
+        case 'ADMIN': return '管理员'
         default: return '用户'
     }
 })
+
+const showAddressTab = computed(() => currentRole.value !== 'ADMIN')
 
 const infoForm = reactive({
     avatar: '',
@@ -189,6 +229,12 @@ const handleUpdatePwd = async () => {
 onMounted(() => {
     initData()
 })
+
+watch(showAddressTab, (visible) => {
+    if (!visible && activeTab.value === 'address') {
+        activeTab.value = 'info'
+    }
+}, { immediate: true })
 </script>
 
 <style scoped>
@@ -196,46 +242,139 @@ onMounted(() => {
     text-align: center;
 }
 
+.profile-layout {
+    align-items: stretch;
+}
+
+.profile-layout :deep(.el-col) {
+    margin-bottom: 0;
+}
+
 .user-info {
-    padding: 24px 18px;
+    padding: 30px 22px;
 }
 
 .profile-panel {
+    position: relative;
+    overflow: hidden;
+    min-height: 100%;
     border: 1px solid var(--app-border);
-    border-radius: 18px;
-    background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(64, 158, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
     box-shadow: var(--app-shadow-sm);
 }
 
+.profile-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 92px;
+    background: linear-gradient(90deg, rgba(64, 158, 255, 0.18), rgba(103, 194, 58, 0.12));
+    pointer-events: none;
+}
+
+.avatar-ring {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    padding: 5px;
+    border-radius: 50%;
+    background: var(--app-surface);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+
+.avatar-ring :deep(.el-avatar) {
+    border: 3px solid var(--app-surface);
+}
+
 .profile-panel h3 {
-    margin: 14px 0 6px;
+    position: relative;
+    margin: 16px 0 10px;
     color: var(--app-text);
     font-size: 22px;
     font-weight: 700;
 }
 
-.profile-panel p {
-    color: var(--app-text-muted);
+.role-badge {
+    border-radius: 999px;
+    padding: 0 14px;
 }
 
 .user-desc {
-    margin-top: 20px;
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
     text-align: left;
-    color: var(--app-text-muted);
     font-size: 14px;
 }
 
-.user-desc p {
-    margin-bottom: 10px;
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--app-surface) 84%, transparent);
 }
 
-.user-desc :deep(.el-icon) {
-    margin-right: 6px;
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 10px;
+    background: rgba(64, 158, 255, 0.12);
     color: var(--app-primary);
 }
 
+.info-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--app-text-muted);
+    font-size: 12px;
+}
+
+.info-row strong {
+    color: var(--app-text);
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.profile-content {
+    min-height: 100%;
+    padding: 20px 22px 24px;
+    border: 1px solid var(--app-border);
+    border-radius: 16px;
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-sm);
+}
+
+.profile-tabs :deep(.el-tabs__header) {
+    margin-bottom: 18px;
+}
+
+.profile-tabs :deep(.el-tabs__nav-wrap::after) {
+    height: 1px;
+    background-color: var(--app-border);
+}
+
+.tab-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
 .profile-form {
-    margin-top: 20px;
+    max-width: 560px;
+    margin-top: 6px;
+    padding-top: 8px;
 }
 
 .profile-form :deep(.el-form-item__label) {
@@ -250,5 +389,20 @@ onMounted(() => {
 
 .profile-form :deep(.el-input__wrapper.is-focus) {
     box-shadow: 0 0 0 1px var(--app-primary) inset;
+}
+
+.profile-form :deep(.el-button) {
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .profile-panel {
+        min-height: auto;
+        margin-bottom: 16px;
+    }
+
+    .profile-content {
+        padding: 16px;
+    }
 }
 </style>

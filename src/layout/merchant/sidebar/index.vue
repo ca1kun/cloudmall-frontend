@@ -41,12 +41,12 @@ import { storeToRefs } from 'pinia'
 import { merchantRouters } from '@/router/merchantRouter'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { filterRoutesByRole } from '@/utils/role'
+import { filterRoutesByRole, type RoleRouteRecord } from '@/utils/role'
 
 const route = useRoute()
 const userStore = useUserStore()
 const { role } = storeToRefs(userStore)
-const stripHiddenRoutes = (routes: any[]) => {
+const stripHiddenRoutes = (routes: RoleRouteRecord[]): RoleRouteRecord[] => {
     return routes
         .filter(route => !route.meta?.hideInMenu)
         .map(route => {
