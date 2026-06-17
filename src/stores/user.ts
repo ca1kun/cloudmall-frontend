@@ -12,6 +12,7 @@ export const useUserStore = defineStore('user', () => {
   const role = ref(normalizeRole(localStorage.getItem('role')) || '')
   const username = ref(localStorage.getItem('username') || '')
   const avatar = ref(localStorage.getItem('avatar') || '')
+  const userId = ref(localStorage.getItem('userId') || '')
 
   // 登录动作 (Action)
   // 👇 2. 参数类型改为 LoginDTO
@@ -44,12 +45,14 @@ export const useUserStore = defineStore('user', () => {
       role.value = normalizedRole
       username.value = data.username
        avatar.value = data.avatar || '' // 防止 null
+      userId.value = data.userId ? String(data.userId) : ''
       localStorage.setItem('avatar', data.avatar || '')
 
       // 持久化存储
       localStorage.setItem('token', data.token)
       localStorage.setItem('role', normalizedRole)
       localStorage.setItem('username', data.username)
+      localStorage.setItem('userId', data.userId ? String(data.userId) : '')
 
       return data
     } catch (error) {
@@ -72,6 +75,7 @@ export const useUserStore = defineStore('user', () => {
       role.value = ''
       username.value = ''
       avatar.value = ''
+      userId.value = ''
       localStorage.clear() // 清空所有本地存储
 
       // 3. 跳转回登录页
@@ -87,6 +91,7 @@ export const useUserStore = defineStore('user', () => {
     role,
     username,
     avatar,
+    userId,
     login,
     logout
   }

@@ -1,13 +1,9 @@
 <template>
   <div class="mall-layout">
-    <!-- 顶部导航栏 -->
     <header class="mall-header">
-      <div class="header-logo" @click="router.push('/mall/home')" style="cursor: pointer;">
-        SCAU 商城
-      </div>
+      <div class="header-logo" @click="router.push('/mall/home')">SCAU 商城</div>
 
       <div class="header-nav">
-        <!-- 1. 新增：领券中心入口 -->
         <el-button link class="nav-item" @click="router.push('/mall/coupon')">
           <el-icon :size="18"><Ticket /></el-icon>
           <span class="nav-label">领券中心</span>
@@ -18,7 +14,6 @@
           <span class="nav-label">我的订单</span>
         </el-button>
 
-        <!-- 购物车角标 -->
         <el-badge :value="cartCount" :hidden="cartCount === 0" class="nav-item cart-badge">
           <el-button link @click="router.push('/mall/cart')">
             <el-icon :size="18"><ShoppingCart /></el-icon>
@@ -37,7 +32,6 @@
 
         <span class="welcome-text">你好，{{ userStore.username }}</span>
 
-        <!-- 下拉菜单：个人中心 & 退出 -->
         <el-dropdown trigger="click">
           <div class="avatar-wrapper">
             <el-avatar :size="32" :src="userStore.avatar" :icon="UserFilled" />
@@ -45,19 +39,11 @@
             <el-icon><CaretBottom /></el-icon>
           </div>
           <template #dropdown>
-            <!-- 2. 下拉框修复：统一宽度，去除 router-link -->
             <el-dropdown-menu class="custom-dropdown">
-              <el-dropdown-item
-                icon="User"
-                @click="router.push(getRoleProfilePath(userStore.role))"
-              >
+              <el-dropdown-item @click="router.push(getRoleProfilePath(userStore.role))">
                 个人中心
               </el-dropdown-item>
-              <el-dropdown-item
-                icon="SwitchButton"
-                divided
-                @click="handleLogout"
-              >
+              <el-dropdown-item divided @click="handleLogout">
                 退出登录
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -66,30 +52,29 @@
       </div>
     </header>
 
-    <!-- 主体区域 -->
     <main class="mall-main">
       <router-view />
     </main>
+
+    <FloatingAiChat />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
-import { useUserStore } from '@/stores/user'
-import { useCartStore } from '@/stores/cart'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-// 引入所有需要的图标
-import { UserFilled, CaretBottom, ShoppingCart, Ticket, SwitchButton, User, Moon, Sunny, List } from '@element-plus/icons-vue'
-import { getRoleProfilePath } from '@/utils/role'
+import { CaretBottom, List, Moon, ShoppingCart, Sunny, Ticket, UserFilled } from '@element-plus/icons-vue'
+import FloatingAiChat from '@/components/FloatingAiChat.vue'
+import { useCartStore } from '@/stores/cart'
 import { useThemeStore } from '@/stores/theme'
+import { useUserStore } from '@/stores/user'
+import { getRoleProfilePath } from '@/utils/role'
 
 const userStore = useUserStore()
 const cartStore = useCartStore()
 const router = useRouter()
 const themeStore = useThemeStore()
-
-// 数量实时监控
 const cartCount = computed(() => cartStore.count)
 
 const handleLogout = () => {
@@ -98,13 +83,13 @@ const handleLogout = () => {
     cancelButtonText: '取消',
     type: 'warning',
   })
-  .then(async () => {
-    await userStore.logout()
-    cartStore.reset()
-    ElMessage.success('退出成功')
-    router.replace('/login')
-  })
-  .catch(() => {})
+    .then(async () => {
+      await userStore.logout()
+      cartStore.reset()
+      ElMessage.success('退出成功')
+      router.replace('/login')
+    })
+    .catch(() => {})
 }
 
 onMounted(() => {
@@ -121,7 +106,7 @@ onMounted(() => {
 }
 
 .mall-header {
-  height: 64px; /* 稍微增高一点 */
+  height: 64px;
   background: var(--app-surface);
   border-bottom: 1px solid var(--app-border);
   display: flex;
@@ -139,12 +124,13 @@ onMounted(() => {
   font-size: 22px;
   color: var(--app-primary);
   letter-spacing: 1px;
+  cursor: pointer;
 }
 
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 20px; /* 使用 gap 代替 margin 更好控制间距 */
+  gap: 20px;
 }
 
 .nav-item {
@@ -191,11 +177,10 @@ onMounted(() => {
 
 .mall-main {
   padding: 20px;
-  max-width: 1300px; /* 限制最大宽度，大屏显示更舒服 */
+  max-width: 1300px;
   margin: 0 auto;
 }
 
-/* 下拉菜单统一宽度 */
 .custom-dropdown {
   width: 150px;
 }
