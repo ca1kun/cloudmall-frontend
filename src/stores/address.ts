@@ -37,7 +37,7 @@ export const useAddressStore = defineStore(
           // 如果没有选中地址，自动选中默认地址或第一个
           if (selectedId.value === 0 && list.length > 0) {
             const defaultAddr = list.find((a) => a.isDefault === 1)
-            selectedId.value = defaultAddr?.id || list[0].id || 0
+            selectedId.value = defaultAddr?.id || list[0]?.id || 0
           }
         }
       } catch (error) {

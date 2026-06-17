@@ -36,6 +36,7 @@ export interface AuthResult {
   token: string
   role: string
   username: string
+  userId?: number | string
   avatar?: string
 }
 

@@ -279,6 +279,8 @@ async function send() {
     ragDocs: [],
     suggestions: [],
   })
+  const assistantMessage = messages.value[assistantIndex]
+  if (!assistantMessage) return
 
   try {
     // SSE 流式请求
@@ -300,7 +302,7 @@ async function send() {
     })
 
     if (response.status === 401) {
-      messages.value[assistantIndex].content = '登录已过期，请重新登录后再试。'
+      assistantMessage.content = '登录已过期，请重新登录后再试。'
       return
     }
 
@@ -329,39 +331,39 @@ async function send() {
           if (eventType === 'metadata') {
             try {
               const meta = JSON.parse(data)
-              if (meta.ragDocs) messages.value[assistantIndex].ragDocs = meta.ragDocs
-              if (meta.data && Array.isArray(meta.data)) messages.value[assistantIndex].products = meta.data
+              if (meta.ragDocs) assistantMessage.ragDocs = meta.ragDocs
+              if (meta.data && Array.isArray(meta.data)) assistantMessage.products = meta.data
             } catch { /* ignore parse error */ }
           } else if (eventType === 'done') {
             try {
               const doneData = JSON.parse(data)
-              if (doneData.suggestions) messages.value[assistantIndex].suggestions = doneData.suggestions
+              if (doneData.suggestions) assistantMessage.suggestions = doneData.suggestions
             } catch { /* ignore parse error */ }
           } else if (eventType === 'error') {
             // 服务端错误事件
-            messages.value[assistantIndex].content = data || 'AI 服务暂时不可用，请稍后重试。'
+            assistantMessage.content = data || 'AI 服务暂时不可用，请稍后重试。'
           } else {
             // 普通文本 chunk
-            messages.value[assistantIndex].content += data
+            assistantMessage.content += data
           }
           eventType = ''
         }
       }
     }
 
-    if (!messages.value[assistantIndex].content) {
-      messages.value[assistantIndex].content = 'AI 服务连接超时，请检查网络后重试。'
+    if (!assistantMessage.content) {
+      assistantMessage.content = 'AI 服务连接超时，请检查网络后重试。'
     }
 
     if (!visible.value) unread.value += 1
   } catch (e: any) {
     // 用户主动终止
     if (e?.name === 'AbortError') {
-      if (!messages.value[assistantIndex].content) {
-        messages.value[assistantIndex].content = '（已终止生成）'
+      if (!assistantMessage.content) {
+        assistantMessage.content = '（已终止生成）'
       }
-    } else if (messages.value[assistantIndex] && !messages.value[assistantIndex].content) {
-      messages.value[assistantIndex].content = 'AI 助手暂时连接失败，请稍后再试。'
+    } else if (!assistantMessage.content) {
+      assistantMessage.content = 'AI 助手暂时连接失败，请稍后再试。'
     }
   } finally {
     abortController = null

@@ -61,8 +61,8 @@
         <el-table-column prop="payAmount" label="实付金额" width="140" />
         <el-table-column label="状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="orderStatusTagType[row.status]">
-              {{ orderStatusLabels[row.status] }}
+            <el-tag :type="getOrderStatusTagType(row.status)">
+              {{ getOrderStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -137,6 +137,10 @@ const statusCards = computed(() => {
     ...cards,
   ]
 })
+
+const getOrderStatusLabel = (status: OrderStatus) => orderStatusLabels[status]
+
+const getOrderStatusTagType = (status: OrderStatus) => orderStatusTagType[status]
 
 const fetchStatusCounts = async () => {
   try {
