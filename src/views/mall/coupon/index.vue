@@ -1,170 +1,355 @@
 <template>
-  <div class="coupon-container">
+  <div class="coupon-page">
+    <section class="coupon-hero">
+      <div>
+        <span class="hero-kicker">COUPON CENTER</span>
+        <h1>优惠券中心</h1>
+        <p>领取专属优惠，结算时自动选择可用优惠券。</p>
+      </div>
+      <div class="hero-summary">
+        <div>
+          <strong>{{ list.length }}</strong>
+          <span>可领活动</span>
+        </div>
+        <div>
+          <strong>{{ myList.length }}</strong>
+          <span>我的券包</span>
+        </div>
+      </div>
+    </section>
+
     <el-card class="coupon-shell" shadow="never">
-      <el-tabs class="coupon-tabs" v-model="activeTab" @tab-click="handleTabClick">
+      <el-tabs v-model="activeTab" class="coupon-tabs" @tab-click="handleTabClick">
+        <el-tab-pane name="center">
+          <template #label>
+            <span class="tab-label">领券中心 <em>{{ list.length }}</em></span>
+          </template>
 
-        <!-- Tab 1: 领券中心 -->
-        <el-tab-pane label="领券中心" name="center">
-          <div class="tip-bar">
-            <el-alert class="coupon-alert" title="抢到的优惠券可在结算页使用哦~" type="success" :closable="false" show-icon />
-          </div>
+          <el-alert class="coupon-alert" title="领取成功后，可在订单结算页选择符合条件的优惠券" type="success" :closable="false" show-icon />
 
-          <el-row :gutter="20" class="coupon-grid">
-            <el-col :span="6" :xs="24" :sm="12" :md="8" :lg="6" v-for="item in list" :key="item.id">
-              <div class="coupon-card" :class="{ 'disabled': isReceived(getCouponId(item)) || item.count <= 0 }">
-                <div class="left-part">
-                  <div class="amount">¥<span>{{ item.amount }}</span></div>
-                  <div class="limit">{{ item.minPoint > 0 ? `满${item.minPoint}可用` : '无门槛' }}</div>
-                </div>
-                <div class="right-part">
-                  <div class="name" :title="item.name">{{ item.name }}</div>
-                  <div class="time">{{ formatTime(item.endTime) }} 到期</div>
-                  <div class="stock-bar">
-                    <el-progress :percentage="calcPercentage(item)" :show-text="false" status="exception" />
-                    <span class="stock-text">剩 {{ item.count }} 张</span>
+          <div v-loading="centerLoading" class="coupon-grid">
+            <article v-for="item in list" :key="getCouponId(item)" class="coupon-card"
+              :class="{ disabled: isCouponUnavailable(item) }">
+              <div class="coupon-value">
+                <div class="amount"><small>¥</small>{{ formatAmount(item.amount) }}</div>
+                <span>{{ formatThreshold(item.minPoint) }}</span>
+              </div>
+
+              <div class="coupon-content">
+                <div class="coupon-heading">
+                  <div>
+                    <h3 :title="item.name">{{ item.name }}</h3>
+                    <span class="scope-tag">商城优惠券</span>
                   </div>
-                  <el-button :type="getBtnType(item)" size="small" :loading="loading[getCouponId(item)]"
-                    :disabled="isReceived(getCouponId(item)) || item.count <= 0" @click="handleReceive(item)" class="action-btn">
+                  <el-tag :type="getCenterStatus(item).type" effect="light" round>
+                    {{ getCenterStatus(item).label }}
+                  </el-tag>
+                </div>
+
+                <div class="coupon-time">
+                  <el-icon>
+                    <Calendar />
+                  </el-icon>
+                  <span>{{ formatDateTime(item.startTime) }}</span>
+                  <i>至</i>
+                  <span>{{ formatDateTime(item.endTime) }}</span>
+                </div>
+
+                <div class="coupon-footer">
+                  <div class="stock">
+                    <el-progress :percentage="calcPercentage(item)" :show-text="false" :stroke-width="6"
+                      status="exception" />
+                    <span>剩余 {{ item.count }} 张</span>
+                  </div>
+                  <el-button :type="getBtnType(item)" :loading="loading[getCouponId(item)]"
+                    :disabled="isCouponUnavailable(item)" round @click="handleReceive(item)">
                     {{ getBtnText(item) }}
                   </el-button>
                 </div>
               </div>
-            </el-col>
-          </el-row>
-          <el-empty v-if="list.length === 0" class="coupon-empty" description="暂无优惠券活动" />
+            </article>
+          </div>
+
+          <el-empty v-if="!centerLoading && list.length === 0" class="coupon-empty" description="暂无可领取的优惠券" />
         </el-tab-pane>
 
-        <!-- Tab 2: 我的优惠券 -->
-        <el-tab-pane label="我的优惠券" name="mine">
-          <el-row :gutter="20" class="coupon-grid">
-            <el-col :span="6" :xs="24" :sm="12" :md="8" :lg="6" v-for="item in myList" :key="item.id">
-              <div class="coupon-card" :class="{ 'used': item.useStatus === 1 }">
-                <div class="left-part">
-                  <div class="amount">¥<span>{{ item.amount }}</span></div>
-                  <div class="limit">{{ item.minPoint > 0 ? `满${item.minPoint}可用` : '无门槛' }}</div>
-                </div>
-                <div class="right-part">
-                  <div class="name">{{ item.name }}</div>
-                  <div class="time">{{ formatTime(item.endTime) }} 到期</div>
+        <el-tab-pane name="mine">
+          <template #label>
+            <span class="tab-label">我的优惠券 <em>{{ myList.length }}</em></span>
+          </template>
 
-                  <div class="status-tag">
-                    <el-tag v-if="item.useStatus === 0" type="success" size="small">未使用</el-tag>
-                    <el-tag v-else type="info" size="small">已使用</el-tag>
+          <div v-loading="mineLoading" class="coupon-grid">
+            <article v-for="item in myList" :key="item.id ?? item.couponId" class="coupon-card mine-card"
+              :class="{ disabled: getMyStatus(item).key !== 'available' }">
+              <div class="coupon-value">
+                <div class="amount"><small>¥</small>{{ formatAmount(item.amount) }}</div>
+                <span>{{ formatThreshold(item.minPoint) }}</span>
+              </div>
+
+              <div class="coupon-content">
+                <div class="coupon-heading">
+                  <div>
+                    <h3 :title="item.name">{{ item.name }}</h3>
+                    <span class="scope-tag">已放入券包</span>
                   </div>
+                  <el-tag :type="getMyStatus(item).type" effect="light" round>
+                    {{ getMyStatus(item).label }}
+                  </el-tag>
+                </div>
 
-                  <el-button v-if="item.useStatus === 0" type="primary" link size="small"
-                    @click="$router.push('/mall/home')" style="margin-top: 5px;">
-                    去使用 >
+                <div class="coupon-time">
+                  <el-icon>
+                    <Calendar />
+                  </el-icon>
+                  <span>{{ formatDateTime(item.startTime) }}</span>
+                  <i>至</i>
+                  <span>{{ formatDateTime(item.endTime) }}</span>
+                </div>
+
+                <div class="coupon-footer mine-footer">
+                  <span class="usage-tip">{{ getUsageTip(item) }}</span>
+                  <el-button v-if="getMyStatus(item).key === 'available'" type="primary" round
+                    @click="router.push('/mall/home')">
+                    去使用
                   </el-button>
                 </div>
               </div>
-            </el-col>
-          </el-row>
-          <el-empty v-if="myList.length === 0" class="coupon-empty" description="您还没有领取优惠券" />
-        </el-tab-pane>
+            </article>
+          </div>
 
+          <el-empty v-if="!mineLoading && myList.length === 0" class="coupon-empty" description="券包还是空的，去领一张吧" />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getCouponListApi, receiveCouponApi, getMyCouponIdsApi } from '@/api/mall/coupon'
-import { ElMessage } from 'element-plus'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { Calendar } from '@element-plus/icons-vue'
+import { ElMessage, type TabsPaneContext } from 'element-plus'
+import { getCouponListApi, getMyCouponIdsApi, receiveCouponApi } from '@/api/mall/coupon'
 import { useUserStore } from '@/stores/user'
 import type { Coupon, UserCouponRecord } from '@/types/types'
 
+type CouponViewStatus = {
+  key: 'pending' | 'active' | 'received' | 'empty' | 'expired' | 'available' | 'used'
+  label: string
+  type: 'success' | 'warning' | 'info' | 'danger'
+}
+
+const router = useRouter()
 const userStore = useUserStore()
 const activeTab = ref('center')
-const list = ref<Coupon[]>([]) // 公共列表
-const myList = ref<UserCouponRecord[]>([]) // 我的列表 (详情)
-const myCouponSet = ref(new Set<number>()) // 我的领过ID集合
+const list = ref<Coupon[]>([])
+const myList = ref<UserCouponRecord[]>([])
+const myCouponSet = ref(new Set<number>())
 const loading = ref<Record<number, boolean>>({})
+const centerLoading = ref(false)
+const mineLoading = ref(false)
 
-const getCouponId = (item: Coupon) => item.id ?? 0
+const getCouponId = (item: Coupon) => item.id ?? item.couponId ?? 0
 
-// 计算抢光进度条 (假数据演示，你可以用 totalCount - count)
+const normalizeTime = (time: string) => {
+  if (!time) return ''
+  return time
+    .replace('T', ' ')
+    .replace(/\.\d+/, '')
+    .replace(/Z$/, '')
+    .replace(/[+-]\d{2}:\d{2}$/, '')
+    .trim()
+}
+
+const parseTime = (time: string) => {
+  const matched = normalizeTime(time).match(
+    /^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/
+  )
+  if (!matched) return Number.NaN
+
+  const [, year, month, day, hour, minute, second = '0'] = matched
+  return new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    Number(second)
+  ).getTime()
+}
+
+const formatDateTime = (time: string) => {
+  const normalized = normalizeTime(time)
+  const matched = normalized.match(
+    /^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})/
+  )
+  if (!matched) return normalized || '-'
+
+  const [, year = '', month = '', day = '', hour = '', minute = ''] = matched
+  const pad = (value: string) => value.padStart(2, '0')
+  return `${year}.${pad(month)}.${pad(day)} ${pad(hour)}:${pad(minute)}`
+}
+
+const formatAmount = (amount: number) => {
+  const value = Number(amount || 0)
+  return Number.isInteger(value) ? String(value) : value.toFixed(2)
+}
+
+const formatThreshold = (minPoint: number) =>
+  Number(minPoint) > 0 ? `满 ¥${formatAmount(minPoint)} 可用` : '无门槛'
+
 const calcPercentage = (item: Coupon) => {
-  // 假设总数是 100，简单展示个效果
-  const total = item.count + 10
-  return Math.floor(((total - item.count) / total) * 100)
+  const remaining = Math.max(Number(item.count || 0), 0)
+  const estimatedTotal = Math.max(remaining + 10, 1)
+  return Math.min(100, Math.round(((estimatedTotal - remaining) / estimatedTotal) * 100))
 }
 
-// 判断是否已领取
-const isReceived = (id: number) => {
-  return myCouponSet.value.has(id)
+const isReceived = (id: number) => myCouponSet.value.has(id)
+
+const getCenterStatus = (item: Coupon): CouponViewStatus => {
+  const couponId = getCouponId(item)
+  if (isReceived(couponId)) {
+    return { key: 'received', label: '已领取', type: 'info' }
+  }
+  if (item.count <= 0) {
+    return { key: 'empty', label: '已抢光', type: 'danger' }
+  }
+
+  const now = Date.now()
+  const start = parseTime(item.startTime)
+  const end = parseTime(item.endTime)
+  if (Number.isFinite(start) && now < start) {
+    return { key: 'pending', label: '未开始', type: 'warning' }
+  }
+  if (Number.isFinite(end) && now > end) {
+    return { key: 'expired', label: '已过期', type: 'info' }
+  }
+  return { key: 'active', label: '领取中', type: 'success' }
 }
 
-// 按钮状态
+const getMyStatus = (item: UserCouponRecord): CouponViewStatus => {
+  if (item.useStatus === 1) {
+    return { key: 'used', label: '已使用', type: 'info' }
+  }
+
+  const now = Date.now()
+  const start = parseTime(item.startTime)
+  const end = parseTime(item.endTime)
+  if (Number.isFinite(end) && now > end) {
+    return { key: 'expired', label: '已过期', type: 'danger' }
+  }
+  if (Number.isFinite(start) && now < start) {
+    return { key: 'pending', label: '未生效', type: 'warning' }
+  }
+  return { key: 'available', label: '可使用', type: 'success' }
+}
+
+const isCouponUnavailable = (item: Coupon) => getCenterStatus(item).key !== 'active'
+
 const getBtnText = (item: Coupon) => {
-  if (isReceived(getCouponId(item))) return '已领取'
-  if (item.count <= 0) return '已抢光'
-  return '立即领取'
-}
-const getBtnType = (item: Coupon) => {
-  if (isReceived(getCouponId(item)) || item.count <= 0) return 'info'
-  return 'danger'
-}
-
-// 获取公共列表
-const fetchList = async () => {
-  const resList = await getCouponListApi()
-
-  if (resList.code === 200) {
-    list.value = resList.data || []
+  const status = getCenterStatus(item)
+  const textMap: Record<CouponViewStatus['key'], string> = {
+    active: '立即领取',
+    received: '已领取',
+    empty: '已抢光',
+    pending: '未开始',
+    expired: '已过期',
+    available: '立即领取',
+    used: '已使用'
   }
-  if (userStore.token) {
-    const resMy = await getMyCouponIdsApi()
-    if (resMy.code === 200) {
-      const ids = resMy.data.map(item => item.couponId) // 👈 关键！
-      myCouponSet.value = new Set(ids)
-    }
-  }
+  return textMap[status.key]
 }
 
-// 获取我的列表
-const fetchMyList = async () => {
-  const res = await getMyCouponIdsApi()
+const getBtnType = (item: Coupon) => getCenterStatus(item).key === 'active' ? 'danger' : 'info'
 
-  // 👇 1. 打印原始 API 返回的数据
-  console.log('原始 API 数据:', res)
-  console.log('第一条数据的 useStatus:', res.data?.[0]?.useStatus)
-
-  if (res.code === 200) {
-    myList.value = res.data || []
-
-    // 👇 2. 打印赋值后的数据
-    console.log('赋值后的 myList:', myList.value)
-  }
+const getUsageTip = (item: UserCouponRecord) => {
+  const status = getMyStatus(item).key
+  if (status === 'used') return '该优惠券已经使用'
+  if (status === 'expired') return '该优惠券已超过有效期'
+  if (status === 'pending') return `将于 ${formatDateTime(item.startTime)} 生效`
+  return formatThreshold(item.minPoint)
 }
 
-// 领取动作
-const handleReceive = async (item: Coupon) => {
+const fetchReceivedCoupons = async () => {
   if (!userStore.token) {
-    ElMessage.warning('请先登录')
-    // router.push('/login')
+    myCouponSet.value = new Set()
     return
   }
+
+  const res = await getMyCouponIdsApi()
+  if (res.code === 200) {
+    myCouponSet.value = new Set((res.data || []).map(item => item.couponId))
+  }
+}
+
+const fetchList = async () => {
+  centerLoading.value = true
+  try {
+    const res = await getCouponListApi()
+    if (res.code === 200) {
+      list.value = res.data || []
+      await fetchReceivedCoupons()
+    } else {
+      ElMessage.error(res.message || '优惠券加载失败')
+    }
+  } catch {
+    ElMessage.error('优惠券加载失败')
+  } finally {
+    centerLoading.value = false
+  }
+}
+
+const fetchMyList = async () => {
+  if (!userStore.token) {
+    myList.value = []
+    ElMessage.warning('登录后才能查看券包')
+    return
+  }
+
+  mineLoading.value = true
+  try {
+    const res = await getMyCouponIdsApi()
+    if (res.code === 200) {
+      myList.value = res.data || []
+      myCouponSet.value = new Set(myList.value.map(item => item.couponId))
+    } else {
+      ElMessage.error(res.message || '券包加载失败')
+    }
+  } catch {
+    ElMessage.error('券包加载失败')
+  } finally {
+    mineLoading.value = false
+  }
+}
+
+const handleReceive = async (item: Coupon) => {
+  if (!userStore.token) {
+    ElMessage.warning('请先登录后领取')
+    router.push('/login')
+    return
+  }
+
   const couponId = getCouponId(item)
-  if (!couponId) return
+  if (!couponId || loading.value[couponId]) return
+
   loading.value[couponId] = true
   try {
     const res = await receiveCouponApi(couponId)
     if (res.code === 200) {
-      ElMessage.success('领取成功')
-      myCouponSet.value.add(couponId) // 标记已领
-      item.count-- // 视觉扣减
+      ElMessage.success('领取成功，已放入券包')
+      myCouponSet.value.add(couponId)
+      item.count = Math.max(0, item.count - 1)
     } else {
       ElMessage.error(res.message || '领取失败')
     }
+  } catch {
+    ElMessage.error('领取失败，请稍后重试')
   } finally {
     loading.value[couponId] = false
   }
 }
 
-// 切换 Tab
-const handleTabClick = (tab: any) => {
+const handleTabClick = (tab: TabsPaneContext) => {
   if (tab.paneName === 'mine') {
     fetchMyList()
   } else {
@@ -172,35 +357,104 @@ const handleTabClick = (tab: any) => {
   }
 }
 
-// 时间格式化
-const formatTime = (timeStr: string) => {
-  return timeStr ? timeStr.split(' ')[0] : ''
-}
-
-onMounted(() => {
-  fetchList()
-})
+onMounted(fetchList)
 </script>
 
 <style scoped>
-.coupon-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+.coupon-page {
+  width: min(1240px, calc(100% - 40px));
+  margin: 24px auto 40px;
+}
+
+.coupon-hero {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  min-height: 170px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 18px;
+  padding: 32px 40px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 82% 20%, rgb(255 255 255 / 22%) 0, transparent 25%),
+    linear-gradient(135deg, #ff566d 0%, #ff7557 50%, #ff9a4d 100%);
+  color: #fff;
+  box-shadow: 0 18px 45px rgb(239 68 68 / 18%);
+}
+
+.coupon-hero::after {
+  position: absolute;
+  right: 25%;
+  bottom: -90px;
+  width: 210px;
+  height: 210px;
+  border: 38px solid rgb(255 255 255 / 9%);
+  border-radius: 50%;
+  content: '';
+}
+
+.coupon-hero>* {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  opacity: 0.75;
+}
+
+.coupon-hero h1 {
+  margin: 8px 0;
+  font-size: 30px;
+}
+
+.coupon-hero p {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.hero-summary {
+  display: flex;
+  gap: 12px;
+}
+
+.hero-summary div {
+  display: grid;
+  min-width: 110px;
+  gap: 4px;
+  padding: 15px 18px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 12%);
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.hero-summary strong {
+  font-size: 24px;
+}
+
+.hero-summary span {
+  font-size: 12px;
+  opacity: 0.8;
 }
 
 .coupon-shell {
-  border-radius: 20px;
   border: 1px solid var(--app-border);
-  background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
-  box-shadow: var(--app-shadow-md);
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--app-surface), var(--app-surface-soft));
 }
 
-.coupon-tabs :deep(.el-tabs__nav-wrap::after) {
-  background-color: var(--app-border);
+.coupon-tabs :deep(.el-tabs__header) {
+  margin-bottom: 20px;
 }
 
 .coupon-tabs :deep(.el-tabs__item) {
+  height: 48px;
   color: var(--app-text-muted);
   font-weight: 600;
 }
@@ -209,155 +463,260 @@ onMounted(() => {
   color: var(--app-primary);
 }
 
-.coupon-tabs :deep(.el-tabs__active-bar) {
-  background-color: var(--app-primary);
+.tab-label em {
+  display: inline-flex;
+  min-width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--app-surface-muted);
+  font-size: 11px;
+  font-style: normal;
 }
 
-.coupon-alert :deep(.el-alert__title),
-.coupon-alert :deep(.el-alert__description) {
+.coupon-alert {
+  margin-bottom: 20px;
+}
+
+.coupon-alert :deep(.el-alert__title) {
   color: var(--app-text);
-}
-
-.coupon-alert :deep(.el-alert__icon) {
-  color: var(--app-success);
-}
-
-.coupon-alert :deep(.el-alert__content) {
-  background: transparent;
-}
-
-:deep(.coupon-alert) {
-  background: var(--app-surface-soft);
-  border: 1px solid var(--app-border);
-  box-shadow: none;
 }
 
 .coupon-grid {
-  margin-top: 20px;
+  display: grid;
+  min-height: 180px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 
-.coupon-empty :deep(.el-empty__description) {
-  color: var(--app-text-muted);
-}
-
-/* 券卡片样式 - 模仿京东/淘宝风格 */
 .coupon-card {
-  background: linear-gradient(135deg, var(--app-surface-soft) 0%, var(--app-surface) 100%);
-  border: 1px solid var(--app-border);
-  border-radius: 14px;
-  display: flex;
-  margin-bottom: 20px;
   position: relative;
+  display: grid;
   overflow: hidden;
-  transition: all 0.3s;
-  height: 110px;
+  min-width: 0;
+  grid-template-columns: 150px minmax(0, 1fr);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.coupon-card::before,
+.coupon-card::after {
+  position: absolute;
+  left: 138px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface-soft);
+  content: '';
+}
+
+.coupon-card::before {
+  top: -12px;
+}
+
+.coupon-card::after {
+  bottom: -12px;
 }
 
 .coupon-card:hover {
-  box-shadow: var(--app-shadow-md);
   transform: translateY(-2px);
+  box-shadow: var(--app-shadow-md);
 }
 
-.left-part {
-  width: 90px;
-  background: linear-gradient(180deg, #fb7185, #ef4444);
-  color: #fff;
+.coupon-value {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  min-height: 180px;
   align-items: center;
-  border-right: 1px dashed rgba(255, 255, 255, 0.7);
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px 14px;
+  border-right: 1px dashed rgb(255 255 255 / 60%);
+  background: linear-gradient(145deg, #ff5f6d, #ff8a55);
+  color: #fff;
+  text-align: center;
 }
 
 .amount {
-  font-size: 14px;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
 }
 
-.amount span {
-  font-size: 28px;
-  font-weight: bold;
+.amount small {
+  margin-right: 2px;
+  font-size: 17px;
 }
 
-.limit {
+.coupon-value>span {
+  margin-top: 10px;
   font-size: 12px;
-  margin-top: 2px;
   opacity: 0.9;
 }
 
-.right-part {
-  flex: 1;
-  padding: 12px 16px;
+.coupon-content {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   justify-content: space-between;
+  gap: 15px;
+  padding: 20px;
 }
 
-.name {
-  font-weight: bold;
-  font-size: 15px;
-  color: var(--app-text);
+.coupon-heading,
+.coupon-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.coupon-heading>div {
+  min-width: 0;
+}
+
+.coupon-heading h3 {
   overflow: hidden;
+  margin: 0 0 7px;
+  color: var(--app-text);
+  font-size: 17px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.time {
-  font-size: 12px;
+.scope-tag {
   color: var(--app-text-muted);
+  font-size: 12px;
 }
 
-.stock-bar {
+.coupon-time {
   display: flex;
   align-items: center;
+  gap: 6px;
+  color: var(--app-text-muted);
   font-size: 12px;
-  color: var(--app-warning);
+  white-space: nowrap;
 }
 
-.stock-text {
-  margin-left: 5px;
-}
-
-.action-btn {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  border-radius: 12px;
-  padding: 5px 14px;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
-}
-
-/* 禁用状态 */
-.coupon-card.disabled .left-part {
-  background: var(--app-border-strong);
-}
-
-.coupon-card.disabled {
-  border-color: var(--app-border);
-  cursor: not-allowed;
-}
-
-/* 已使用状态 */
-.coupon-card.used {
-  filter: grayscale(100%);
+.coupon-time i {
+  font-style: normal;
   opacity: 0.6;
 }
 
-.status-tag {
-  margin-top: 5px;
+.stock {
+  display: grid;
+  width: min(180px, 55%);
+  gap: 5px;
 }
 
-@media (max-width: 768px) {
-  .coupon-container {
-    padding: 16px;
+.stock span,
+.usage-tip {
+  color: var(--app-text-muted);
+  font-size: 12px;
+}
+
+.coupon-card.disabled {
+  box-shadow: none;
+  opacity: 0.68;
+}
+
+.coupon-card.disabled .coupon-value {
+  background: linear-gradient(145deg, #94a3b8, #64748b);
+}
+
+.coupon-card.disabled:hover {
+  transform: none;
+}
+
+.mine-card .coupon-value {
+  background: linear-gradient(145deg, #5b73f2, #7c5ce7);
+}
+
+.mine-card.disabled .coupon-value {
+  background: linear-gradient(145deg, #94a3b8, #64748b);
+}
+
+.coupon-empty {
+  padding: 30px 0;
+}
+
+@media (max-width: 960px) {
+  .coupon-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .coupon-page {
+    width: calc(100% - 24px);
+    margin-top: 12px;
+  }
+
+  .coupon-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 25px 22px;
+  }
+
+  .hero-summary {
+    width: 100%;
+  }
+
+  .hero-summary div {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .coupon-shell :deep(.el-card__body) {
+    padding: 14px;
   }
 
   .coupon-card {
-    height: auto;
-    min-height: 120px;
+    grid-template-columns: 105px minmax(0, 1fr);
   }
 
-  .left-part {
-    width: 84px;
+  .coupon-card::before,
+  .coupon-card::after {
+    left: 94px;
+  }
+
+  .coupon-value {
+    min-height: 205px;
+  }
+
+  .amount {
+    font-size: 30px;
+  }
+
+  .coupon-content {
+    padding: 16px 14px;
+  }
+
+  .coupon-heading,
+  .coupon-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .coupon-time {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .stock {
+    width: 100%;
+  }
+
+  .coupon-footer :deep(.el-button) {
+    width: 100%;
   }
 }
 </style>

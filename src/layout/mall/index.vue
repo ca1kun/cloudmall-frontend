@@ -1,7 +1,9 @@
 <template>
   <div class="mall-layout">
     <header class="mall-header">
-      <div class="header-logo" @click="router.push('/mall/home')">SCAU 商城</div>
+      <div class="header-logo" @click="router.push('/mall/home')" style="cursor: pointer;">
+        SCAU 商城
+      </div>
 
       <div class="header-nav">
         <el-button link class="nav-item" @click="router.push('/mall/coupon')">
@@ -30,8 +32,7 @@
           @change="(value: boolean) => themeStore.applyTheme(value ? 'dark' : 'light')"
         />
 
-        <span class="welcome-text">你好，{{ userStore.username }}</span>
-
+        <!-- 下拉菜单：个人中心 & 退出 -->
         <el-dropdown trigger="click">
           <div class="avatar-wrapper">
             <el-avatar :size="32" :src="userStore.avatar" :icon="UserFilled" />

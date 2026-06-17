@@ -19,7 +19,6 @@
                 @change="(value: boolean) => themeStore.applyTheme(value ? 'dark' : 'light')"
             />
             <div class="user-block">
-                <span class="username">你好，{{ userStore.username }}</span>
 
                 <el-dropdown trigger="click" class="avatar-container">
                     <div class="avatar-wrapper">

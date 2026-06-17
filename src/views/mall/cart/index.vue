@@ -4,10 +4,13 @@
             <template #header>
                 <div class="card-header">
                     <div class="header-title">
-                        <span class="title-icon">🛒</span>
+                        <span class="title-icon">
+                            <el-icon><ShoppingCart /></el-icon>
+                        </span>
                         <span>我的购物车</span>
+                        <el-tag v-if="cartList.length > 0" effect="plain" round>{{ cartList.length }} 件商品</el-tag>
                     </div>
-                    <el-button class="refresh-btn" type="text" @click="fetchCart">刷新</el-button>
+                    <el-button class="refresh-btn" text :icon="Refresh" @click="fetchCart">刷新</el-button>
                 </div>
             </template>
 
@@ -74,7 +77,7 @@
                 <div class="total">
                     总计：<span class="price">¥ {{ totalPrice }}</span>
                 </div>
-                <el-button class="checkout-btn" type="primary" size="large" @click="goToCheckout" :disabled="cartList.length === 0">
+                <el-button class="checkout-btn" type="primary" size="large" :icon="ArrowRight" @click="goToCheckout" :disabled="cartList.length === 0">
                     去结算 ({{ cartList.length }})
                 </el-button>
             </div>
@@ -89,6 +92,7 @@ import { getCartListApi, addCartApi, deleteCartApi } from '@/api/mall/cart'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useCartStore } from '@/stores/cart'
 import type { CartItem } from '@/types/types'
+import { ArrowRight, Refresh, ShoppingCart } from '@element-plus/icons-vue'
 
 const cartStore = useCartStore()
 const router = useRouter()
@@ -165,16 +169,24 @@ onMounted(() => {
 
 <style scoped>
 .cart-container {
-    padding: 20px;
+    padding: 24px 20px 48px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .cart-card {
-    border-radius: 20px;
+    overflow: hidden;
+    border-radius: 16px;
     border: 1px solid var(--app-border);
-    background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
+    background: var(--app-surface);
     box-shadow: var(--app-shadow-md);
+}
+
+.cart-card :deep(.el-card__header) {
+    border-bottom: 1px solid var(--app-border);
+    background:
+        linear-gradient(90deg, rgba(64, 158, 255, 0.1), rgba(103, 194, 58, 0.08)),
+        var(--app-surface);
 }
 
 .card-header {
@@ -186,14 +198,21 @@ onMounted(() => {
 .header-title {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 700;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 800;
     color: var(--app-text);
 }
 
 .title-icon {
-    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    color: var(--app-primary);
+    background: rgba(64, 158, 255, 0.12);
 }
 
 .refresh-btn {
@@ -206,13 +225,17 @@ onMounted(() => {
 
 .cart-table :deep(.el-table__header-wrapper th) {
     font-weight: 600;
-    background: var(--app-surface-soft);
+    background: var(--app-surface-muted);
     color: var(--app-text);
     border-bottom-color: var(--app-border);
 }
 
+.cart-table :deep(.el-table__row td) {
+    padding: 16px 0;
+}
+
 .cart-table :deep(.el-table__body tr:hover > td) {
-    background: var(--app-surface-muted);
+    background: color-mix(in srgb, var(--app-primary) 5%, var(--app-surface));
 }
 
 .cart-table :deep(.el-table__inner-wrapper) {
@@ -259,6 +282,7 @@ onMounted(() => {
 .cart-item {
     display: flex;
     align-items: center;
+    gap: 14px;
 }
 
 .cart-item-image {
@@ -270,9 +294,9 @@ onMounted(() => {
 }
 
 .cart-item-name {
-    margin-left: 15px;
     font-weight: 700;
     color: var(--app-text);
+    line-height: 1.5;
 }
 
 .price-now {
@@ -298,13 +322,17 @@ onMounted(() => {
 }
 
 .cart-footer {
-    margin-top: 20px;
+    position: sticky;
+    bottom: 0;
+    margin: 18px -20px -20px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     border-top: 1px solid var(--app-border);
-    padding-top: 20px;
+    padding: 18px 20px;
     gap: 16px;
+    background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+    backdrop-filter: blur(10px);
 }
 
 .total {
@@ -322,7 +350,8 @@ onMounted(() => {
 .checkout-btn {
     box-shadow: 0 12px 26px rgba(37, 99, 235, 0.25);
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 12px 22px;
+    font-weight: 700;
 }
 
 @media (max-width: 768px) {
@@ -338,6 +367,8 @@ onMounted(() => {
     .cart-footer {
         flex-direction: column;
         align-items: flex-end;
+        margin-left: -16px;
+        margin-right: -16px;
     }
 }
 </style>

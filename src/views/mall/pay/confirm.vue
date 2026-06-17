@@ -1,6 +1,6 @@
 <template>
     <div class="pay-container">
-        <el-card class="box-card">
+        <el-card class="box-card" shadow="never">
             <div class="success-icon">
                 <el-icon :color="'var(--app-success)'" size="60">
                     <CircleCheckFilled />
@@ -21,11 +21,11 @@
             </div>
 
             <div class="btn-group">
-                <el-button type="primary" size="large" :loading="loading" @click="handleAlipay">
+                <el-button type="primary" size="large" :icon="CreditCard" :loading="loading" @click="handleAlipay">
                     支付宝支付
                 </el-button>
                 <!-- 微信支付暂未实现，可以置灰 -->
-                <el-button type="success" size="large" disabled> 微信支付 </el-button>
+                <el-button type="success" size="large" :icon="ChatDotRound" disabled> 微信支付 </el-button>
             </div>
         </el-card>
     </div>
@@ -35,7 +35,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { alipayApi } from '@/api/mall/pay'
-import { CircleCheckFilled } from '@element-plus/icons-vue'
+import { ChatDotRound, CircleCheckFilled, CreditCard } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -91,12 +91,24 @@ const handleAlipay = async () => {
 .pay-container {
     display: flex;
     justify-content: center;
-    padding-top: 50px;
+    min-height: calc(100vh - 120px);
+    padding: 58px 20px;
+    background:
+        linear-gradient(180deg, rgba(64, 158, 255, 0.08), transparent 320px),
+        var(--app-bg);
 }
 
 .box-card {
-    width: 500px;
-    padding: 20px;
+    width: min(520px, 100%);
+    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: 18px;
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-md);
+}
+
+.box-card :deep(.el-card__body) {
+    padding: 36px;
 }
 
 .text-center {
@@ -104,8 +116,21 @@ const handleAlipay = async () => {
 }
 
 .success-icon {
-    text-align: center;
-    margin-bottom: 10px;
+    width: 92px;
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: rgba(103, 194, 58, 0.12);
+}
+
+h2 {
+    margin: 0;
+    color: var(--app-text);
+    font-size: 24px;
+    font-weight: 800;
 }
 
 .tip {
@@ -115,17 +140,27 @@ const handleAlipay = async () => {
 }
 
 .info-list {
-    border-top: 1px solid var(--app-border);
-    border-bottom: 1px solid var(--app-border);
-    padding: 20px 0;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+    background: var(--app-surface-soft);
+    padding: 18px;
     margin-bottom: 30px;
 }
 
 .item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    gap: 18px;
+    padding: 10px 0;
     font-size: 16px;
+}
+
+.item + .item {
+    border-top: 1px dashed var(--app-border);
+}
+
+.item span:first-child {
+    color: var(--app-text-muted);
 }
 
 .price {
@@ -136,6 +171,28 @@ const handleAlipay = async () => {
 
 .btn-group {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-group :deep(.el-button) {
+    min-width: 140px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+@media (max-width: 560px) {
+    .box-card :deep(.el-card__body) {
+        padding: 28px 20px;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group :deep(.el-button) {
+        width: 100%;
+        margin-left: 0;
+    }
 }
 </style>

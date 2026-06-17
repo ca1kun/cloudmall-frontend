@@ -137,6 +137,7 @@ import { useDashboardScreen } from '@/composables/useDashboardScreen'
 const {
   currentTime,
   currentDate,
+  loading,
   metrics,
   topProducts,
   recentOrders,

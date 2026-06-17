@@ -1,13 +1,14 @@
 <template>
-  <div class="app-container page-shell">
+  <div class="merchant-order-detail page-shell">
     <el-card class="page-card" shadow="never" v-loading="loading">
       <template #header>
         <div class="page-header">
           <div>
+            <span class="page-eyebrow">ORDER DETAIL</span>
             <h2 class="page-title">订单详情</h2>
             <p class="page-subtitle">订单号 {{ orderDetail?.order.orderNo || '-' }}</p>
           </div>
-          <el-button @click="router.back()">返回</el-button>
+          <el-button icon="ArrowLeft" @click="router.back()">返回列表</el-button>
         </div>
       </template>
 
@@ -18,8 +19,10 @@
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="下单时间">{{ orderDetail?.order.createTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="订单金额">{{ orderDetail?.order.totalAmount || 0 }}</el-descriptions-item>
-        <el-descriptions-item label="实付金额">{{ orderDetail?.order.payAmount || 0 }}</el-descriptions-item>
+        <el-descriptions-item label="订单金额">¥ {{ formatAmount(orderDetail?.order.totalAmount) }}</el-descriptions-item>
+        <el-descriptions-item label="实付金额">
+          <strong class="amount-text">¥ {{ formatAmount(orderDetail?.order.payAmount) }}</strong>
+        </el-descriptions-item>
         <el-descriptions-item label="买家">{{ orderDetail?.order.buyerName || '-' }}</el-descriptions-item>
         <el-descriptions-item label="买家手机号">{{ orderDetail?.order.buyerPhone || '-' }}</el-descriptions-item>
         <el-descriptions-item label="收货人">{{ orderDetail?.order.receiverName || '-' }}</el-descriptions-item>
@@ -92,9 +95,15 @@
         </template>
         <el-table :data="orderDetail?.items || []" border>
           <el-table-column prop="productName" label="商品名称" min-width="200" />
-          <el-table-column prop="price" label="单价" width="120" />
-          <el-table-column prop="quantity" label="数量" width="120" />
-          <el-table-column prop="subtotal" label="小计" width="140" />
+          <el-table-column prop="price" label="单价" width="120">
+            <template #default="{ row }">¥ {{ formatAmount(row.price) }}</template>
+          </el-table-column>
+          <el-table-column prop="quantity" label="数量" width="120" align="center" />
+          <el-table-column prop="subtotal" label="小计" width="140">
+            <template #default="{ row }">
+              <strong class="amount-text">¥ {{ formatAmount(row.subtotal) }}</strong>
+            </template>
+          </el-table-column>
         </el-table>
       </el-card>
     </el-card>
@@ -186,17 +195,20 @@ const fetchDetail = async () => {
   }
 }
 
+const formatAmount = (amount?: number | string) => Number(amount || 0).toFixed(2)
+
 onMounted(() => {
   fetchDetail()
 })
 </script>
 
 <style scoped>
-.page-shell {
+.merchant-order-detail {
   padding: 10px 0;
 }
 
 .page-card {
+  border: 1px solid var(--app-border);
   border-radius: 16px;
 }
 
@@ -207,6 +219,7 @@ onMounted(() => {
 }
 
 .page-title {
+  margin: 0;
   font-size: 22px;
   color: var(--app-text);
   font-weight: 700;
@@ -216,6 +229,19 @@ onMounted(() => {
   margin-top: 6px;
   color: var(--app-text-muted);
   font-size: 14px;
+}
+
+.page-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--el-color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.amount-text {
+  color: var(--app-danger);
 }
 
 .items-card {
@@ -233,5 +259,16 @@ onMounted(() => {
 
 .return-info {
   margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .merchant-order-detail :deep(.el-descriptions__body) {
+    overflow-x: auto;
+  }
 }
 </style>

@@ -1,47 +1,67 @@
 <template>
-    <div class="app-container">
-        <el-steps :active="step" finish-status="success" align-center>
-            <el-step title="MakeNewSale" />
-            <el-step title="EnterItem" />
-            <el-step title="EndSale" />
-            <el-step title="MakePayment" />
-        </el-steps>
-        <el-divider />
-        <el-row :gutter="20">
-            <el-col :span="5">
-                <el-card>
+    <div class="pos-sale-page page-shell">
+        <el-card class="page-card" shadow="never">
+            <div class="page-header">
+                <div>
+                    <span class="page-eyebrow">POS CHECKOUT</span>
+                    <h2 class="page-title">收银台</h2>
+                    <p class="page-subtitle">录入商品、确认订单并完成线下收款。</p>
+                </div>
+                <el-button type="success" icon="Plus" :disabled="!(step === 0 || step === 4)" @click="handleMakeNewSale">
+                    开始新销售
+                </el-button>
+            </div>
+
+            <el-steps :active="step" finish-status="success" align-center class="sale-steps">
+                <el-step title="创建订单" />
+                <el-step title="录入商品" />
+                <el-step title="确认订单" />
+                <el-step title="完成支付" />
+            </el-steps>
+
+            <el-row :gutter="18" class="checkout-layout">
+            <el-col :xs="24" :lg="7">
+                <el-card class="control-card" shadow="never">
                     <template #header>
-                        <span>商品录入</span>
+                        <div class="card-title">
+                            <strong>商品录入</strong>
+                            <el-tag :type="step === 1 ? 'success' : 'info'" effect="light">
+                                {{ step === 1 ? '录入中' : '等待订单' }}
+                            </el-tag>
+                        </div>
                     </template>
-                    <el-form :model="enterItemForm" label-width="auto">
+                    <el-form :model="enterItemForm" label-position="top">
                         <el-form-item label="商品编码">
-                            <el-select v-model="enterItemForm.itemSn" placeholder="请选择商品" filterable>
+                            <el-select v-model="enterItemForm.itemSn" placeholder="请选择商品" filterable class="full-control">
                                 <el-option v-for="item in productOptions" :key="item.productSn"
                                     :label="item.productName" :value="item.productSn" />
                             </el-select>
                         </el-form-item>
                         <el-form-item label="订购数量">
-                            <el-input-number v-model="enterItemForm.quantity" :min="1" controls-position="right" />
+                            <el-input-number v-model="enterItemForm.quantity" :min="1" controls-position="right"
+                                class="full-control" />
                         </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" size="small" :disabled="step !== 1" @click="handleEnterItem">
+                        <el-form-item class="control-actions">
+                            <el-button type="primary" :disabled="step !== 1" @click="handleEnterItem">
                                 添加商品
                             </el-button>
-                            <el-button type="success" size="small" :disabled="step !== 1 || tableData.length === 0"
+                            <el-button type="success" :disabled="step !== 1 || tableData.length === 0"
                                 @click="handleEndSale">
                                 结束录入
                             </el-button>
                         </el-form-item>
                     </el-form>
                 </el-card>
-                <el-divider />
-                <el-card>
+                <el-card class="control-card payment-card" shadow="never">
                     <template #header>
-                        <span>订单支付</span>
+                        <div class="card-title">
+                            <strong>订单支付</strong>
+                            <span class="payable-amount">应收 ¥{{ sale.total.toFixed(2) }}</span>
+                        </div>
                     </template>
-                    <el-form :model="makePaymentForm" label-width="auto">
+                    <el-form :model="makePaymentForm" label-position="top">
                         <el-form-item label="支付方式">
-                            <el-select v-model="makePaymentForm.payMethod" :disabled="step !== 3">
+                            <el-select v-model="makePaymentForm.payMethod" :disabled="step !== 3" class="full-control">
                                 <el-option label="现金" value="CASH" />
                                 <el-option label="支付宝" value="ALIPAY" />
                                 <el-option label="微信支付" value="WECHAT_PAY" />
@@ -49,13 +69,13 @@
                         </el-form-item>
                         <el-form-item label="实收金额">
                             <el-input-number v-model="makePaymentForm.cashTendered" :min="0" :precision="2"
-                                controls-position="right" :disabled="step !== 3" style="width: 100%;" />
+                                controls-position="right" :disabled="step !== 3" class="full-control" />
                         </el-form-item>
                         <el-form-item label="找零">
                             <el-input :value="makePaymentForm.changeDue.toFixed(2)" readonly />
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="danger" size="small" :disabled="step !== 3" @click="handleMakePayment">
+                            <el-button type="danger" class="payment-button" :disabled="step !== 3" @click="handleMakePayment">
                                 确认支付
                             </el-button>
                         </el-form-item>
@@ -63,15 +83,12 @@
                 </el-card>
             </el-col>
 
-            <el-col :span="19">
-                <el-descriptions title="订单信息" :column="3" border>
+            <el-col :xs="24" :lg="17">
+                <el-descriptions title="订单信息" :column="3" border class="sale-summary">
                     <template #extra>
                         <el-button type="warning" :disabled="step !== 1 || tableData.length === 0"
                             @click="handleHoldOrder">
                             挂起订单
-                        </el-button>
-                        <el-button type="success" :disabled="!(step === 0 || step === 4)" @click="handleMakeNewSale">
-                            开始新销售
                         </el-button>
                     </template>
                     <el-descriptions-item label="会员">{{ customerName }}</el-descriptions-item>
@@ -80,8 +97,7 @@
                     <el-descriptions-item label="总件数">{{ totalQuantity }}</el-descriptions-item>
                     <el-descriptions-item label="状态">{{ sale.status }}</el-descriptions-item>
                 </el-descriptions>
-                <el-divider />
-                <el-card>
+                <el-card class="items-card" shadow="never">
                     <template #header>
                         <span>订单明细</span>
                     </template>
@@ -96,17 +112,23 @@
                                     :min="1" @change="handleChangeQuantity(scope.row)" />
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" align="center">
+                        <el-table-column label="操作" align="center" width="110">
                             <template #default="scope">
-                                <el-button link type="primary" icon="Delete" size="small" :disabled="step !== 1"
+                                <el-button type="danger" plain icon="Delete" size="small" :disabled="step !== 1"
                                     @click="handleDelete(scope.row)">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
-                    <template #footer>总件数: {{ totalQuantity }}件 ｜ 总金额: {{ totalAmount.toFixed(2) }} 元</template>
+                    <template #footer>
+                        <div class="order-total">
+                            <span>共 {{ totalQuantity }} 件商品</span>
+                            <strong>合计 ¥{{ totalAmount.toFixed(2) }}</strong>
+                        </div>
+                    </template>
                 </el-card>
             </el-col>
         </el-row>
+        </el-card>
     </div>
 </template>
 
@@ -197,12 +219,16 @@ async function handleEnterItem() {
     }
 }
 
-function handleEndSale() {
-    endSale(sale.value.saleId!).then(response => {
+async function handleEndSale() {
+    try {
+        const response = await endSale(sale.value.saleId!)
         sale.value = response.data
         makePaymentForm.value.cashTendered = sale.value.total
         step.value = 3
-    })
+    } catch (error) {
+        console.error('结束录入失败:', error)
+        ElMessage.error('订单确认失败，请重试')
+    }
 }
 
 async function handleMakePayment() {
@@ -266,6 +292,7 @@ const handleChangeQuantity = async (row: SaleItem) => {
         ElMessage.success('数量修改成功')
     } catch (error) {
         console.error('修改数量失败:', error)
+        ElMessage.error('数量修改失败')
     }
 }
 
@@ -281,14 +308,17 @@ const handleDelete = (row: SaleItem) => {
             ElMessage.success('商品已删除')
         } catch (error) {
             console.error('删除失败:', error)
+            ElMessage.error('商品删除失败')
         }
     })
 }
 
 onMounted(() => {
-    listAllProduct().then((response: any) => {
-        productOptions.value = response.data
-    })
+    listAllProduct()
+        .then((response: any) => {
+            productOptions.value = response.data
+        })
+        .catch(() => ElMessage.error('商品列表加载失败'))
 })
 
 const tableRowClassName = ({ row, rowIndex }: { row: SaleItem; rowIndex: number }) => {
@@ -299,24 +329,130 @@ const tableRowClassName = ({ row, rowIndex }: { row: SaleItem; rowIndex: number 
 </script>
 
 <style scoped>
-.el-descriptions {
-    margin-top: 20px;
+.pos-sale-page {
+    min-height: 100vh;
 }
 
-.cell-item {
+.page-card {
+    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: 16px;
+}
+
+.page-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.page-eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--el-color-primary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+}
+
+.page-title {
+    margin: 0;
+    color: var(--app-text);
+    font-size: 24px;
+}
+
+.page-subtitle {
+    margin: 7px 0 0;
+    color: var(--app-text-muted);
+}
+
+.sale-steps {
+    margin-bottom: 26px;
+    padding: 20px;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    background: var(--app-surface-soft);
+}
+
+.checkout-layout {
+    align-items: stretch;
+}
+
+.control-card,
+.items-card {
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+}
+
+.payment-card,
+.items-card {
+    margin-top: 18px;
+}
+
+.card-title,
+.order-total {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.margin-top {
-    margin-top: 20px;
+.payable-amount,
+.order-total strong {
+    color: var(--app-danger);
+    font-weight: 700;
 }
 
-.el-table .warning-row {
-    --el-table-tr-bg-color: var(--el-color-warning-light-9);
+.full-control {
+    width: 100%;
 }
 
-.el-table .success-row {
-    --el-table-tr-bg-color: var(--el-color-success-light-9);
+.control-actions :deep(.el-form-item__content) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.control-actions :deep(.el-button + .el-button) {
+    margin-left: 0;
+}
+
+.payment-button {
+    width: 100%;
+}
+
+.sale-summary {
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.items-card :deep(.el-card__body) {
+    padding: 0;
+}
+
+.order-total {
+    width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .sale-summary {
+        margin-top: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-header :deep(.el-button) {
+        width: 100%;
+    }
+
+    .sale-steps {
+        overflow-x: auto;
+    }
 }
 </style>

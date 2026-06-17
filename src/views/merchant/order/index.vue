@@ -1,9 +1,10 @@
 <template>
-  <div class="app-container page-shell">
+  <div class="merchant-order-page page-shell">
     <el-card class="page-card" shadow="never">
       <template #header>
         <div class="page-header">
-          <div>
+          <div class="page-heading">
+            <span class="page-eyebrow">ORDER CENTER</span>
             <h2 class="page-title">商城订单列表</h2>
             <p class="page-subtitle">掌握线上订单数量与状态，快速定位客户订单。</p>
           </div>
@@ -54,29 +55,33 @@
             end-placeholder="结束时间"
           />
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+        <el-form-item class="filter-actions">
+          <el-button type="primary" icon="Search" @click="handleSearch">查询</el-button>
+          <el-button icon="Refresh" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="orderList" v-loading="loading" border>
+      <el-table :data="orderList" v-loading="loading" border stripe class="order-table" empty-text="暂无订单">
         <el-table-column prop="orderNo" label="订单号" min-width="160" />
         <el-table-column prop="buyerName" label="买家" width="120" />
         <el-table-column prop="buyerPhone" label="手机号" width="140" />
         <el-table-column prop="createTime" label="下单时间" min-width="160" />
-        <el-table-column prop="totalQuantity" label="件数" width="100" />
-        <el-table-column prop="payAmount" label="实付金额" width="140" />
-        <el-table-column label="状态" width="120">
+        <el-table-column prop="totalQuantity" label="件数" width="90" align="center" />
+        <el-table-column prop="payAmount" label="实付金额" width="140" align="right">
           <template #default="{ row }">
-            <el-tag :type="orderStatusTagType[row.status]">
-              {{ orderStatusLabels[row.status] }}
+            <strong class="amount-text">¥ {{ formatAmount(row.payAmount) }}</strong>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="120" align="center">
+          <template #default="{ row }">
+            <el-tag :type="getStatusTagType(row.status)">
+              {{ getStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="140">
+        <el-table-column label="操作" width="140" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="goDetail(row.orderId)">查看详情</el-button>
+            <el-button type="primary" plain size="small" icon="View" @click="goDetail(row.orderId)">查看详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -233,6 +238,12 @@ const goDetail = (orderId: number) => {
   router.push(`/merchant/order/${orderId}`)
 }
 
+const getStatusLabel = (status: OrderStatus) => orderStatusLabels[status] || status
+
+const getStatusTagType = (status: OrderStatus) => orderStatusTagType[status] || 'info'
+
+const formatAmount = (amount: number | string) => Number(amount || 0).toFixed(2)
+
 onMounted(() => {
   fetchStatusCounts()
   fetchOrders()
@@ -240,11 +251,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-shell {
+.merchant-order-page {
   padding: 10px 0;
 }
 
 .page-card {
+  overflow: hidden;
+  border: 1px solid var(--app-border);
   border-radius: 16px;
 }
 
@@ -255,7 +268,17 @@ onMounted(() => {
   gap: 16px;
 }
 
+.page-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--el-color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
 .page-title {
+  margin: 0;
   font-size: 22px;
   color: var(--app-text);
   font-weight: 700;
@@ -278,7 +301,8 @@ onMounted(() => {
   cursor: pointer;
   border-radius: 12px;
   border: 1px solid var(--app-border);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(135deg, var(--app-surface-soft), var(--app-surface));
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .status-card.active {
@@ -303,12 +327,48 @@ onMounted(() => {
 }
 
 .filter-form {
-  margin-bottom: 12px;
+  margin-bottom: 18px;
+  padding: 18px 18px 0;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface-soft);
+}
+
+.order-table {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.amount-text {
+  color: var(--app-danger);
 }
 
 .pager {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .filter-form {
+    display: block;
+  }
+
+  .filter-form :deep(.el-form-item),
+  .filter-form :deep(.el-input),
+  .filter-form :deep(.el-select),
+  .filter-form :deep(.el-date-editor) {
+    width: 100% !important;
+  }
+
+  .filter-actions :deep(.el-form-item__content) {
+    flex-wrap: nowrap;
+  }
+
+  .pager {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 4px;
+  }
 }
 </style>

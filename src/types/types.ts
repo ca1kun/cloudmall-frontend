@@ -309,3 +309,77 @@ export interface AddressQueryParams extends PageRequest {
   receiverName?: string
   receiverPhone?: string
 }
+
+// ==================== 商家大屏相关类型 ====================
+
+export interface MetricCard {
+  label: string
+  value: number
+  valueText: string
+  trend: number
+  trendText: string
+  direction: 'up' | 'down'
+  subtext: string
+}
+
+export interface DashboardMetrics {
+  sales: MetricCard
+  orders: MetricCard
+  activeUsers: MetricCard
+  goodsCount: MetricCard
+}
+
+export interface DashboardTrend {
+  days: string[]
+  sales: number[]
+  orders: number[]
+  averageOrderValue: number[]
+}
+
+export interface CategoryShareItem {
+  name: string
+  value: number
+}
+
+export interface DashboardCategoryShare {
+  data: CategoryShareItem[]
+}
+
+export interface DashboardChannelOrders {
+  channels: string[]
+  orders: number[]
+}
+
+export interface TopProductItem {
+  rank: number
+  name: string
+  count: number
+}
+
+export interface DashboardTopProducts {
+  list: TopProductItem[]
+}
+
+export interface RecentOrderItem {
+  orderNo: string
+  customer: string
+  amount: number
+  amountText: string
+  status: string
+  statusText: string
+  statusType: 'success' | 'warning' | 'info' | 'danger'
+  createTime: string
+}
+
+export interface DashboardRecentOrders {
+  list: RecentOrderItem[]
+}
+
+export interface DashboardOverview {
+  metrics: DashboardMetrics
+  trend: DashboardTrend
+  categoryShare: DashboardCategoryShare
+  channelOrders: DashboardChannelOrders
+  topProducts: DashboardTopProducts
+  recentOrders: DashboardRecentOrders
+}
