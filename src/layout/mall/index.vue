@@ -2,7 +2,7 @@
   <div class="mall-layout">
     <header class="mall-header">
       <div class="header-logo" @click="router.push('/mall/home')" style="cursor: pointer;">
-        SCAU 商城
+        不知道什么名字商城
       </div>
 
       <div class="header-nav">

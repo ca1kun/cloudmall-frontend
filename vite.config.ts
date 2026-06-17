@@ -45,7 +45,8 @@ export default defineConfig(({ mode }) => {
         },
         // 其他 API 走默认代理
         '/api': {
-          target,
+          //target,
+          target: 'http://8.138.192.28:8080',
           changeOrigin: true,
         }
       }
